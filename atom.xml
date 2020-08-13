@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://dasein.vercel.app</id>
     <title>一个窝</title>
-    <updated>2020-08-13T11:59:06.413Z</updated>
+    <updated>2020-08-13T12:30:34.672Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://dasein.vercel.app"/>
     <link rel="self" href="https://dasein.vercel.app/atom.xml"/>
@@ -10,4 +10,13 @@
     <logo>https://dasein.vercel.app/images/avatar.png</logo>
     <icon>https://dasein.vercel.app/favicon.ico</icon>
     <rights>All rights reserved 2020, 一个窝</rights>
+    <entry>
+        <title type="html"><![CDATA[第一次]]></title>
+        <id>https://dasein.vercel.app/post/di-yi-ci/</id>
+        <link href="https://dasein.vercel.app/post/di-yi-ci/">
+        </link>
+        <updated>2020-08-13T12:29:31.000Z</updated>
+        <content type="html"><![CDATA[<p>Hello World</p>
+]]></content>
+    </entry>
 </feed>
