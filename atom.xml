@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://dasein.vercel.app</id>
-    <title>M31星云干货集散地</title>
-    <updated>2020-08-14T08:21:37.006Z</updated>
+    <title>Dasein</title>
+    <updated>2020-08-14T12:43:32.959Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://dasein.vercel.app"/>
     <link rel="self" href="https://dasein.vercel.app/atom.xml"/>
     <subtitle>Freiheit als Autonomie</subtitle>
     <logo>https://dasein.vercel.app/images/avatar.png</logo>
     <icon>https://dasein.vercel.app/favicon.ico</icon>
-    <rights>All rights reserved 2020, M31星云干货集散地</rights>
+    <rights>All rights reserved 2020, Dasein</rights>
     <entry>
         <title type="html"><![CDATA[电商指标分析]]></title>
         <id>https://dasein.vercel.app/post/dian-shang-zhi-biao-fen-xi/</id>
