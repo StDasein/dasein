@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://dasein.vercel.app/favicon.ico?v=1597376676552">
+<link rel="shortcut icon" href="https://dasein.vercel.app/favicon.ico?v=1597377215185">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://dasein.vercel.app/styles/main.css">
 
@@ -36,7 +36,7 @@
   <div class="site-header">
     <div class="left">
       <a href="https://dasein.vercel.app">
-        <img class="avatar" src="https://dasein.vercel.app/images/avatar.png?v=1597376676552" alt="" width="32px" height="32px">
+        <img class="avatar" src="https://dasein.vercel.app/images/avatar.png?v=1597377215185" alt="" width="32px" height="32px">
       </a>
       <a href="https://dasein.vercel.app">
         <h1 class="site-title">M31星云干货集散地</h1>
@@ -998,26 +998,19 @@ seller_combined['ratio'].mean()
 0.0781
 </code></pre>
 <p>分析总结：</p>
-<ul>
-<li>
-<p>销量前十的卖家有六家同时也是流量前十的卖家，说明流量与销量正相关。</p>
-</li>
-<li>
-<p>销量前十的高流量卖家转化率普遍较低，低于7.8%的平均水平，应该关注这些卖家的获客成本，分析其推广、营销费用是否过多，获客渠道是否合适等。</p>
-</li>
-<li>
-<p>在销量前十的卖家中，1200号卖家以最低的流量获取了较高的销量，转化率一枝独秀，高达26.5%，应进一步研究。</p>
-<p>原因假设：客户忠诚度高</p>
-<p>验证思路：比较1200号卖家和销量第一的3828号卖家的复购率。</p>
-<p>收集证据：</p>
-<p>#生成透视表，行索引为用户id,列索引为月份<br>
-seller_1200 = user_full[user_full['seller_id']==1200]<br>
-seller_1200_buy = seller_1200[seller_1200['action_type']==2]<br>
-pivot_1200_re = seller_1200_buy.pivot_table(columns='month',index='user_id',<br>
-values='action_type',aggfunc='count')<br>
-pivot_1200_re.head()</p>
-</li>
-</ul>
+<p>销量前十的卖家有六家同时也是流量前十的卖家，说明流量与销量正相关;</p>
+<p>销量前十的高流量卖家转化率普遍较低，低于7.8%的平均水平，应该关注这些卖家的获客成本，分析其推广、营销费用是否过多，获客渠道是否合适等;</p>
+<p>在销量前十的卖家中，1200号卖家以最低的流量获取了较高的销量，转化率一枝独秀，高达26.5%，应进一步研究:<br>
+原因假设：客户忠诚度高<br>
+验证思路：比较1200号卖家和销量第一的3828号卖家的复购率。<br>
+收集证据：</p>
+<pre><code>#生成透视表，行索引为用户id,列索引为月份
+seller_1200 = user_full[user_full['seller_id']==1200]
+seller_1200_buy = seller_1200[seller_1200['action_type']==2]
+pivot_1200_re = seller_1200_buy.pivot_table(columns='month',index='user_id',
+                                            values='action_type',aggfunc='count')
+pivot_1200_re.head()
+</code></pre>
 <figure data-type="image" tabindex="22"><img src="https://dasein.vercel.app/post-images/1597375602620.png" alt="" loading="lazy"></figure>
 <pre><code>#转换数值以计算复购率
 pivot_1200_re = pivot_1200_re.applymap(lambda x:1 if x&gt;1 else 0 if x == 1 else np.nan)
