@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://dasein.vercel.app</id>
     <title>M31星云干货集散地</title>
-    <updated>2020-08-14T06:32:42.819Z</updated>
+    <updated>2020-08-14T06:52:49.523Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://dasein.vercel.app"/>
     <link rel="self" href="https://dasein.vercel.app/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
+    <subtitle>Freiheit als Autonomie</subtitle>
     <logo>https://dasein.vercel.app/images/avatar.png</logo>
     <icon>https://dasein.vercel.app/favicon.ico</icon>
     <rights>All rights reserved 2020, M31星云干货集散地</rights>
