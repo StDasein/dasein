@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://dasein.vercel.app</id>
     <title>M31星云干货集散地</title>
-    <updated>2020-08-14T07:06:37.001Z</updated>
+    <updated>2020-08-14T07:37:41.096Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://dasein.vercel.app"/>
     <link rel="self" href="https://dasein.vercel.app/atom.xml"/>
@@ -16,7 +16,14 @@
         <link href="https://dasein.vercel.app/post/dian-shang-zhi-biao-fen-xi/">
         </link>
         <updated>2020-08-14T00:28:09.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="一-数据概况">一、数据概况</h1>
+        <content type="html"><![CDATA[<p>目录：<br>
+一、数据概况<br>
+二、提出问题<br>
+三、分析思路<br>
+四、数据清理<br>
+五、数据分析<br>
+六、增长建议</p>
+<h1 id="一-数据概况">一、数据概况</h1>
 <h2 id="数据来源">数据来源：</h2>
 <p><a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=47&amp;lang=zh-cn">阿里天池</a></p>
 <h2 id="数据内容">数据内容：</h2>
