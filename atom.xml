@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-14T13:17:41.041Z</updated>
+    <updated>2020-08-15T00:37:20.674Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -173,8 +173,9 @@ user_full.head()
 </code></pre>
 <figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597369687965.png" alt="" loading="lazy"></figure>
 <h1 id="五-数据分析">五、数据分析</h1>
+<p>这部分将会对数据集进行具体分析。</p>
 <h2 id="1人">1.人</h2>
-<p>这一部分关注点是用户的行为习惯，利用AARRR的部分因素、转化率概念和kmeans模型对用户行为进行分析。</p>
+<p>本环节关注点是用户的行为习惯，利用AARRR的部分因素、转化率概念和kmeans模型对用户行为进行分析。</p>
 <h3 id="acquisition客户获取">Acquisition：客户获取</h3>
 <h4 id="指标选取">指标选取</h4>
 <figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597369796598.png" alt="" loading="lazy"></figure>
