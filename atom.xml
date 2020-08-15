@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-15T00:37:20.674Z</updated>
+    <updated>2020-08-15T07:32:54.508Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -10,6 +10,164 @@
     <logo>https://stdasein.life/images/avatar.png</logo>
     <icon>https://stdasein.life/favicon.ico</icon>
     <rights>All rights reserved 2020, Dasein</rights>
+    <entry>
+        <title type="html"><![CDATA[爬虫基本流程——以豆瓣电影top250为例]]></title>
+        <id>https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/</id>
+        <link href="https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/">
+        </link>
+        <updated>2020-08-15T06:49:31.000Z</updated>
+        <content type="html"><![CDATA[<p>设置环境</p>
+<pre><code>import bs4
+import re
+import urllib.request,urllib.error
+import xlwt
+import sqlite3
+from bs4 import BeautifulSoup
+import pandas as pd
+
+
+url = 'https://movie.douban.com/top250'
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'}
+data = bytes(urllib.parse.urlencode({'a':'b'}),encoding = 'utf-8')
+req = urllib.request.Request(url = url,headers = headers)
+response = urllib.request.urlopen(req)
+print(response.read().decode('utf-8'))
+
+def asKurl(url):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'}
+    req = urllib.request.Request(url=url,headers=headers)
+    response = urllib.request.urlopen(req)
+    html =''
+    html = response.read().decode('utf-8')
+    return html
+
+baseurl = 'https://movie.douban.com/top250?start='
+relink = re.compile(r'&lt;a href=&quot;(.*?)&quot;&gt;')
+reimage = re.compile(r'&lt;img.*src=&quot;(.*?)&quot;',re.S) #re.S让换行符包含在字符中
+retitle = re.compile(r'&lt;span class=&quot;title&quot;&gt;(.*)&lt;/span&gt;')
+rerating = re.compile(r'&lt;span class=&quot;rating_num&quot; property=&quot;v:average&quot;&gt;(.*)&lt;/span&gt;')
+renum_comment = re.compile(r'&lt;span&gt;(\d*)人评价&lt;/span&gt;')
+reqinq =  re.compile(r'&lt;span class=&quot;inq&quot;&gt;(.*)&lt;/span&gt;')
+reinfo = re.compile('&lt;p class=&quot;&quot;&gt;(.*?)&lt;/p&gt;',re.S)
+
+def get_all(baseurl):
+    datalist=[]
+    for i in range(0,10):
+        url = baseurl + str(i*25)
+        html = asKurl(url)
+        #逐一解析数据
+        soup = BeautifulSoup(html,'html.parser')
+        for item in soup.find_all('div',class_='item'):
+            data = []
+            item = str(item)
+            link = re.findall(relink,item)[0] 
+            data.append(link)
+            image = re.findall(reimage,item)[0]
+            data.append(image)
+            titles =  re.findall(retitle,item)
+            if (len(titles)==2):
+                ctitle = titles[0]
+                data.append(ctitle)
+                ftitle = titles[1].replace('/','')
+                data.append(ftitle)
+            else:
+                data.append(ctitle)
+                data.append(' ')
+            
+            rating = re.findall(rerating,item)[0] 
+            data.append(rating)
+            
+            num_comment = re.findall(renum_comment,item)[0]
+            data.append(num_comment)
+            
+            inq = re.findall(reqinq,item)
+            if (len(inq) != 0):
+                inq = inq[0].replace('。','')
+                data.append(inq)
+            else:
+                data.append(' ')
+                
+            info = re.findall(reinfo,item)[0]
+            info = re.sub('&lt;br(\s+)?/&gt;(\s+)?',' ',info)
+            info = re.sub('/',' ',info)
+            data.append(info.strip())
+
+            datalist.append(data)
+            
+    return datalist
+
+datalist = get_all(baseurl)
+
+import xlwt
+def saveData(datalist, savepath):
+    workbook = xlwt.Workbook(encoding = 'utf-8')
+    worksheet = workbook.add_sheet('sheet1')
+    cols = ['电影链接','图片链接','中文名称','英文名称','评分','评价人数','评语','其他信息']
+    for i in range(0,8):
+        worksheet.write(0,i,cols[i])
+    for i in range(0,250):
+        data = datalist[i]
+        for j in range(0,8):
+            worksheet.write(i+1,j,data[j])
+    workbook.save(savepath)
+
+def main():
+    baseurl = 'https://movie.douban.com/top250?start='
+    #1.爬取网页并解析数据
+    datalist = get_all(baseurl)
+    #2.保存数据
+    savepath = r'C:\Users\Steven\Desktop\ipython\豆瓣电影.xls'
+    saveData(datalist, savepath)
+
+import pymysql
+
+config = {
+            'host':'127.0.0.1',
+            'user':'root',
+            'password':'cai19930727205',
+            'database':'python_db',
+            'port':3306
+            }
+def init_db():
+    con = pymysql.connect(**config)
+    cur = con.cursor()
+    sql = &quot;&quot;&quot;
+        create table moviestop250(
+        id INT auto_increment,
+        info_link VARCHAR(100),
+        im_link VARCHAR(100),
+        cname VARCHAR(100),
+        fname VARCHAR(100),
+        score FLOAT,
+        rate_num INT,
+        introduction TEXT,
+        info TEXT,
+        primary key(id)
+        )
+        &quot;&quot;&quot;
+    cur.execute(sql)
+    cur.close()
+    con.close()
+
+def saveData2DB(datalist):
+    init_db()
+    con = pymysql.connect(**config)
+    cursor = con.cursor()
+    
+    for data in datalist:
+        for i in range(len(data)):
+            data[i] = '&quot;'+data[i]+'&quot;'
+        sql =&quot;&quot;&quot;
+            insert into moviestop250(info_link,im_link,cname,fname,score,rate_num,introduction,info)
+            values(%s)&quot;&quot;&quot;%&quot;,&quot;.join(data)
+        cursor.execute(sql)
+        con.commit()
+    cursor.close()
+    con.close()
+
+saveData2DB(datalist)</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[电商指标分析]]></title>
         <id>https://stdasein.life/post/dian-shang-zhi-biao-fen-xi/</id>
@@ -52,7 +210,7 @@
 <h1 id="三-分析思路">三、分析思路</h1>
 <ul>
 <li>使用人货场的分析框架并结合AARRR指标体系。</li>
-<li>采用多维度拆解分析方法对问题进行拆解，用假设检验分析法、对比分析法和kmeans模型具体分析用户使用流程及具体业务指标中的问题。<br>
+<li>采用多维度拆解分析方法对问题进行拆解，用假设检验分析法、对比分析法和kmeans算法具体分析用户使用流程及具体业务指标中的问题。<br>
 <img src="https://stdasein.life/post-images/1597366576834.png" alt="" loading="lazy"></li>
 </ul>
 <h1 id="四-数据清理">四、数据清理</h1>
