@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-16T05:30:17.865Z</updated>
+    <updated>2020-08-16T23:56:08.210Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -11,7 +11,7 @@
     <icon>https://stdasein.life/favicon.ico</icon>
     <rights>All rights reserved 2020, Dasein</rights>
     <entry>
-        <title type="html"><![CDATA[爬虫基本流程——以豆瓣电影top250为例]]></title>
+        <title type="html"><![CDATA[爬虫基本流程——爬取豆瓣电影top250]]></title>
         <id>https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/</id>
         <link href="https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/">
         </link>
