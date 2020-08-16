@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-16T05:29:47.409Z</updated>
+    <updated>2020-08-16T05:30:17.865Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -10,39 +10,6 @@
     <logo>https://stdasein.life/images/avatar.png</logo>
     <icon>https://stdasein.life/favicon.ico</icon>
     <rights>All rights reserved 2020, Dasein</rights>
-    <entry>
-        <title type="html"><![CDATA[房价预测]]></title>
-        <id>https://stdasein.life/post/fang-jie-yu-ce/</id>
-        <link href="https://stdasein.life/post/fang-jie-yu-ce/">
-        </link>
-        <updated>2020-08-15T07:55:32.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="数据探索">数据探索</h1>
-<pre><code>#基本环境设置
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-path1 = 'train.csv'
-path2 = 'test.csv'
-train_data = pd.read_csv(path1)
-test_data = pd.read_csv(path2)
-X_train = train_data.drop(['SalePrice'],axis=1)
-y_train = train_data['SalePrice']
-X_data = X_train.append(test_data)
-X_data.drop(['Id'],axis=1,inplace=True)
-</code></pre>
-<h1 id="数据预处理">数据预处理</h1>
-<h2 id="数据清理">数据清理</h2>
-<p>缺失值处理<br>
-异常值处理</p>
-<h2 id="数据规整">数据规整</h2>
-<p>标准化<br>
-分布转化<br>
-编码与哑变量</p>
-<h1 id="特征工程">特征工程</h1>
-]]></content>
-    </entry>
     <entry>
         <title type="html"><![CDATA[爬虫基本流程——以豆瓣电影top250为例]]></title>
         <id>https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/</id>
