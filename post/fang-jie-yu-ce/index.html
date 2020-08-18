@@ -6,7 +6,7 @@
 
 <title>房价预测 | Dasein</title>
 
-<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597622163895">
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597718893416">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://stdasein.life/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1597622163895" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1597718893416" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -98,36 +98,307 @@
                     
                 </div>
                 <div class="post-content">
-                    <h1 id="数据探索">数据探索</h1>
+                    <h1 id="项目背景">项目背景</h1>
+<p>房价预测是kaggle平台上的一个线性回归问题，要求参赛者根据房屋的属性预测房价。</p>
+<h1 id="数据概况">数据概况</h1>
+<p>数据来源：<a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview">kaggle</a></p>
+<p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价)，详情可见：<br>
+<a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data">数据详情</a></p>
+<h1 id="框架">框架</h1>
+<p>项目可分为以下五个环节：<br>
+数据探索：对数据集进行初步的观察以获得整体概念。<br>
+数据清理：对数据集可能存在的缺失值和异常值进行处理。<br>
+特征工程：在理解现有特征的基础上尝试构建新特征，并进行规整、选择。<br>
+模型构建、选择：构建预测模型。<br>
+预测：利用构建好的模型预测房价。<br>
+<img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"></p>
+<h1 id="数据探索">数据探索</h1>
+<p>我们需要引进常用的库来满足数据分析和可视化的需求：</p>
 <pre><code>#基本环境设置
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import pandas_profiling as pp
+#加载训练集和测试集
 path1 = 'train.csv'
 path2 = 'test.csv'
 train_data = pd.read_csv(path1)
 test_data = pd.read_csv(path2)
+train_data.head()
+test_data.head()
+</code></pre>
+<p>为了方便操作，我们需要分离特征与标签并将训练、测试集合并：</p>
+<pre><code>#分离特征和标签
 X_train = train_data.drop(['SalePrice'],axis=1)
 y_train = train_data['SalePrice']
+#训练集、测试集合并
 X_data = X_train.append(test_data)
+#id列对预测没有意义，可舍去
 X_data.drop(['Id'],axis=1,inplace=True)
 </code></pre>
-<h1 id="数据预处理">数据预处理</h1>
-<h2 id="数据清理">数据清理</h2>
-<p>缺失值处理<br>
-异常值处理</p>
-<h2 id="数据规整">数据规整</h2>
-<p>标准化<br>
-分布转化<br>
-编码与哑变量</p>
+<p>使用pandas_profiling进行数据探索，对于数据集的每一列，pandas_profiling会提供以下统计信息：<br>
+1、概要：数据类型，唯一值，缺失值，内存大小<br>
+2、分位数统计：最小值、最大值、中位数、Q1、Q3、最大值，值域，四分位<br>
+3、描述性统计：均值、众数、标准差、绝对中位差、变异系数、峰值、偏度系数<br>
+4、最频繁出现的值，直方图/柱状图<br>
+5、相关性分析可视化：突出强相关的变量，Spearman, Pearson矩阵相关性色阶图</p>
+<pre><code>report = pp.ProfileReport(X_data)
+report
+</code></pre>
+<p>Overview<br>
+在Overview我们可以了解到数据集的基本信息：缺失值数量、重复行数和数据的类型。<br>
+<img src="https://stdasein.life/post-images/1597715512282.png" alt="" loading="lazy"><br>
+可见，数据集有13,965个缺失值需要我们处理，且数据主要为类别型和数值型，在后续分析时要进行区分。<br>
+Variables<br>
+variables部分会显示各特征的详细情况，例如、缺失值数量、唯一值数量、均值、标准差等<br>
+<img src="https://stdasein.life/post-images/1597715778189.png" alt="" loading="lazy"><br>
+以LotArea特征为例，我们可以得知其没有缺失值，但标准差和极差非常大，这为后续分析提供了线索<br>
+Correlations<br>
+<img src="https://stdasein.life/post-images/1597716013886.png" alt="" loading="lazy"></p>
+<h1 id="数据清理">数据清理</h1>
+<h2 id="缺失值处理">缺失值处理</h2>
+<pre><code>#查看缺失值占比
+null_count = X_data.isnull().sum().sort_values(ascending = False)
+ratio = null_count/len(X_data)
+nulldata = pd.concat([null_count,ratio],axis = 1, keys=['count','ratio'])
+nulldata[ratio&gt;0]
+</code></pre>
+<p><img src="https://stdasein.life/post-images/1597623449444.png" alt="" loading="lazy"><br>
+根据官方提供的data_description文本，有些特征出现缺失值是因为房子没有该特征（例如有的房子没有游泳池），对于这一类可以选择填入none，如果是数值类型的就填入0；除此之外，对于缺失值比较少的特征，可以直接填充众数。</p>
+<pre><code>#选择缺失值数量为1或2的特征
+feature_fill_mode = nulldata[(nulldata['count'] == 1) | (nulldata['count'] == 2)].index
+#因为同一个社区的LotFrontage（街道到房屋的距离）应该比较接近，所以填充同社区的中位数
+feature_fill_neig = ['LotFrontage']
+#选择要填入none的特征
+feature_fill_none = ['MasVnrType','BsmtFinType1','BsmtFinType2','BsmtQual','BsmtExposure','BsmtCond',
+                    'GarageType','GarageFinish','GarageQual','GarageCond','FireplaceQu','Fence','Alley',
+                    'MiscFeature','PoolQC','MSZoning']
+#选择要填入0的特征
+feature_fill_zero = ['MasVnrArea','GarageYrBlt']
+</code></pre>
+<p>对特征的缺失值进行填充：</p>
+<pre><code>for col in feature_fill_mode:
+X_data[col].fillna(X_data[col].mode()[0], inplace=True)
+
+for col in feature_fill_none:
+    X_data[col].fillna('None',inplace=True)
+
+for col in feature_fill_zero:
+    X_data[col].fillna(0,inplace=True)
+    
+X_data['LotFrontage'] = X_data.groupby(&quot;Neighborhood&quot;)['LotFrontage'].transform(lambda x: x.fillna(x.median()))    
+X_data.isnull().sum()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1597625545484.png" alt="" loading="lazy"></figure>
+<p>异常值处理<br>
+（1）观察法</p>
+<pre><code>#筛选数值型特征
+num_features = X_data.select_dtypes('number')
+num_names = num_features.columns
+des = X_data[num_names].describe()
+#按特征的标准差排序
+des.sort_values(by = 'std',ascending = False, axis = 1)
+</code></pre>
+<p><img src="https://stdasein.life/post-images/1597627987467.png" alt="" loading="lazy"><br>
+可见，LotArea的标准差要远大于其他特征，且极差也非常大，应进一步研究是否存在异常值。</p>
+<pre><code>ax = sns.scatterplot(x=&quot;LotArea&quot;, y=&quot;SalePrice&quot;, data=train_data)
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597628238676.png" alt="" loading="lazy"></figure>
+<pre><code>#用中位数替换异常值
+X_data.loc[X_data['LotArea']&gt;150000,['LotArea']]=9453
+</code></pre>
+<p>（2）使用IsolationForest算法剔除异常值</p>
+<pre><code>#因为只需剔除训练集的异常值，所以暂时将训练、测试集分离
+X_train = X_data.iloc[:1460,:]
+X_test = X_data.iloc[1460:,:]
+X_train.shape
+(1460, 79)
+
+#建立算法模型：
+from sklearn.ensemble import IsolationForest
+iso = IsolationForest()
+#剔除异常值：算法将-1表示为异常值，所以mask表示不含有异常值的行
+yhat = iso.fit_predict(X_train[num_names])
+mask = yhat != -1
+X_train, y_train = X_train.values[mask, :], y_train.values[mask]
+X_train = pd.DataFrame(X_train,columns = X_data.columns)
+X_train.shape
+(1380, 79)
+</code></pre>
+<p>算法剔除了80行包含有异常值的数据。</p>
+<pre><code>#将训练集和测试集合并
+X_data_removed = pd.concat([X_train,X_test],axis = 0)
+X_data_removed[num_names] = X_data_removed[num_names].astype(int)
+X_data_removed.reset_index(drop=True, inplace=True)
+</code></pre>
 <h1 id="特征工程">特征工程</h1>
+<h2 id="特征构建">特征构建</h2>
+<pre><code>#构建房屋总面积
+X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']
+#构建房屋翻修年限
+X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']
+#构建房屋总评分
+X_data_removed['Total_Home_Quality'] = X_data_removed['OverallQual'] + X_data_removed['OverallCond']
+#构建房屋建造年限
+X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt'] 
+#构建总浴室数量
+X_data_removed['Total_Bathrooms'] = (X_data_removed['FullBath'] + (0.5 * X_data_removed['HalfBath']) +
+                            X_data_removed['BsmtFullBath'] + (0.5 * X_data_removed['BsmtHalfBath']))
+#构建门廊总面积
+X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_removed['3SsnPorch'] +
+                            X_data_removed['EnclosedPorch'] + X_data_removed['ScreenPorch'] +
+                            X_data_removed['WoodDeckSF'])
+</code></pre>
+<h2 id="特征规整">特征规整</h2>
+<p>标准化</p>
+<pre><code>#筛选数值型数据
+num = X_data_removed.select_dtypes('number')
+num_names = num.columns
+#引入标准化工具并进行标准化
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_data_removed[num_names] = scaler.fit_transform(X_data_removed[num_names])
+</code></pre>
+<p>偏分布转化</p>
+<pre><code>from scipy.stats import norm, skew    
+from scipy.special import boxcox1p
+from scipy.stats import boxcox_normmax
+from scipy import stats,special
+
+
+#查看特征值的偏度分布
+def sKewNess(data):
+    skewed = data.apply(lambda x:skew(x)).sort_values(ascending=False)
+    skewness = pd.DataFrame({'skew':skewed})
+    return skewness[skewness['skew'].abs()&gt;0.75]
+
+sKewNess(X_data_removed[num_names])
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597649891150.png" alt="" loading="lazy"></figure>
+<pre><code>skew_index = sKewNess(X_data_removed[num_names]).index
+for i in skew_index:
+    X_data_removed[i] = boxcox1p(X_data_removed[i], boxcox_normmax(X_data_removed[i] + 1))
+    
+sKewNess((X_data_removed[num_names]))
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597650731012.png" alt="" loading="lazy"></figure>
+<pre><code>#查看标签偏度
+sns.distplot(y_train)
+</code></pre>
+<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"></figure>
+<pre><code>y_train = np.log1p(y_train)
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
+<p>编码与哑变量</p>
+<pre><code>#用get_dummies函数将非数值型特征转化为哑变量
+X_data_removed = pd.get_dummies(X_data_removed)
+X_data_removed.shape
+(2848, 306)
+</code></pre>
+<h2 id="特征选择">特征选择</h2>
+<pre><code>X_train_removed = X_data_removed.iloc[:len(X_train),:]
+X_test = X_data_removed.iloc[len(X_train):,:]
+X_train_removed.shape, X_test.shape
+((1389, 306), (1459, 306))
+
+#PCA主成分分析进行特征降维
+from sklearn.decomposition import PCA
+pca_model = PCA(n_components = 0.99)
+X_train_removed = pca_model.fit_transform(X_train_removed)
+X_test = pca_model.transform(X_test)
+X_train_removed.shape, X_test.shape
+((1389, 133), (1459, 133))
+</code></pre>
+<h1 id="模型构建">模型构建</h1>
+<pre><code>from numpy import mean, std
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, ExtraTreesRegressor
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from sklearn.model_selection import GridSearchCV,cross_val_score,StratifiedKFold
+from sklearn.model_selection import RepeatedKFold
+from sklearn.ensemble import StackingRegressor
+
+
+def get_stacking():
+    # 构建基本模型
+    level0 = list()
+    level0.append(('lgbm', LGBMRegressor()))
+    level0.append(('Forest', RandomForestRegressor()))
+    level0.append(('svm', SVR()))
+    level0.append(('GDB', GradientBoostingRegressor()))
+    level0.append(('XGB', XGBRegressor(objective ='reg:squarederror')))
+    # 构建次级模型
+    level1 = LinearRegression()
+    # define the stacking ensemble
+    model = StackingRegressor(estimators=level0, final_estimator=level1, cv=10)
+    return model
+
+def get_models():
+    models = dict()
+    models['knn'] = KNeighborsRegressor()
+    models['cart'] = DecisionTreeRegressor()
+    models['svm'] = SVR()
+    models['linear'] = LinearRegression()
+    models['Forest'] = RandomForestRegressor()
+    models['GDB'] = GradientBoostingRegressor()
+    models['Extra'] = ExtraTreesRegressor()
+    models['XGB'] = XGBRegressor(objective ='reg:squarederror')
+    models['LGBM'] = LGBMRegressor()
+    models['stacking'] = get_stacking()
+    return models
+
+def evaluate_model(model):
+    cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+    scores = cross_val_score(model, X_train_removed, y_train, scoring='neg_mean_squared_error', cv=cv, n_jobs=-1, error_score='raise')
+    return scores
+
+models = get_models()
+#evaluate the models and store results
+results, names = list(), list()
+for name, model in models.items():
+    scores = evaluate_model(model)
+    results.append(scores)
+    names.append(name)
+    print('&gt;%s %.3f (%.3f)' % (name, mean(scores), std(scores)))
+
+&gt;knn -0.023 (0.006)
+&gt;cart -0.039 (0.007)
+&gt;svm -0.018 (0.007)
+&gt;linear -0.013 (0.004)
+&gt;Forest -0.018 (0.005)
+&gt;GDB -0.016 (0.005)
+&gt;Extra -0.018 (0.005)
+&gt;XGB -0.016 (0.005)
+&gt;LGBM -0.016 (0.004)
+&gt;stacking -0.015 (0.005)
+
+model = get_stacking()
+model.fit(X_train_removed,y_train)
+result = model.predict(X_test)
+result = np.expm1(result)
+
+r=pd.DataFrame()
+r['Id']=test_data['Id']
+r['SalePrice']=result
+#将预测结果导出为csv文件
+r.to_csv(&quot;C:\\Users\\Steven\\Desktop\\Kaggle\\housing2.csv&quot;, index = False)</code></pre>
 
                 </div>
             </article>
         </div>
 
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://stdasein.life/post/pa-chong-ji-ben-liu-cheng-yi-dou-ban-dian-ying-top250-wei-li/" class="post-title gt-a-link">
+                    爬虫基本流程——爬取豆瓣电影top250
+                </a>
+            </div>
         
 
         
