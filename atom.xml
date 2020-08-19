@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-19T08:58:14.418Z</updated>
+    <updated>2020-08-19T09:10:05.455Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -20,21 +20,20 @@
 <p>房价预测是kaggle平台上的一个线性回归问题，要求参赛者根据房屋的属性预测房价。</p>
 <h1 id="数据概况">数据概况</h1>
 <p>数据来源：<a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview">kaggle</a></p>
-<p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价)，详情可见：<br>
+<p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价<br>
 <a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data">数据详情</a></p>
 <h1 id="框架">框架</h1>
-<p>项目可分为以下五个环节：<br>
+<p><img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"><br>
 数据探索：对数据集进行初步的观察以获得整体概念。<br>
 数据清理：对数据集可能存在的缺失值和异常值进行处理。<br>
 特征工程：在理解现有特征的基础上尝试构建新特征，并进行规整、选择。<br>
 模型构建、选择：构建预测模型。<br>
-预测：利用构建好的模型预测房价。<br>
-<img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"></p>
+预测：利用构建好的模型预测房价。</p>
 <h1 id="数据探索分析">数据探索分析</h1>
-<p>本阶段将会通过提问的方式对数据进行探索和分析：<br>
-1、什么特征是离散的（文本型）？<br>
-2、什么特征是连续的（数值型）？<br>
-3、那些特征还不能直接使用，需要做进一步的处理？</p>
+<p>本阶段的目的是回答以下问题：<br>
+1、特征的数据类型是什么？<br>
+2、特征都有什么特点？<br>
+3、哪些特征还不能直接使用，需要做进一步的处理？</p>
 <p>引进常用的库来满足数据分析和可视化的需求：</p>
 <pre><code>#基本环境设置
 import pandas as pd
