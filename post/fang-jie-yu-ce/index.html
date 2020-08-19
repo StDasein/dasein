@@ -6,7 +6,7 @@
 
 <title>房价预测 | Dasein</title>
 
-<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597719156865">
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597827390937">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://stdasein.life/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1597719156865" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1597827390937" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -112,8 +112,12 @@
 模型构建、选择：构建预测模型。<br>
 预测：利用构建好的模型预测房价。<br>
 <img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"></p>
-<h1 id="数据探索">数据探索</h1>
-<p>我们需要引进常用的库来满足数据分析和可视化的需求：</p>
+<h1 id="数据探索分析">数据探索分析</h1>
+<p>本阶段将会通过提问的方式对数据进行探索和分析：<br>
+1、什么特征是离散的（文本型）？<br>
+2、什么特征是连续的（数值型）？<br>
+3、那些特征还不能直接使用，需要做进一步的处理？</p>
+<p>引进常用的库来满足数据分析和可视化的需求：</p>
 <pre><code>#基本环境设置
 import pandas as pd
 import numpy as np
@@ -128,11 +132,11 @@ test_data = pd.read_csv(path2)
 train_data.head()
 test_data.head()
 </code></pre>
-<p>为了方便操作，我们需要分离特征与标签并将训练、测试集合并：</p>
+<p>为了方便操作，分离特征与标签并将训练集与测试集合并：</p>
 <pre><code>#分离特征和标签
 X_train = train_data.drop(['SalePrice'],axis=1)
 y_train = train_data['SalePrice']
-#训练集、测试集合并
+#合并
 X_data = X_train.append(test_data)
 #id列对预测没有意义，可舍去
 X_data.drop(['Id'],axis=1,inplace=True)
@@ -146,28 +150,38 @@ X_data.drop(['Id'],axis=1,inplace=True)
 <pre><code>report = pp.ProfileReport(X_data)
 report
 </code></pre>
-<p>Overview<br>
+<p><strong>Overview</strong><br>
 在Overview我们可以了解到数据集的基本信息：缺失值数量、重复行数和数据的类型。<br>
 <img src="https://stdasein.life/post-images/1597715512282.png" alt="" loading="lazy"><br>
-可见，数据集有13,965个缺失值需要我们处理，且数据主要为类别型和数值型，在后续分析时要进行区分。<br>
-Variables<br>
-variables部分会显示各特征的详细情况，例如、缺失值数量、唯一值数量、均值、标准差等<br>
+可见，数据集有13,965个缺失值需要处理，且数据主要为文本型（46）和数值型（33），在后续分析时要进行区分。</p>
+<p><strong>Variables</strong><br>
+variables部分会显示各特征的详细情况，例如、缺失值数量、唯一值数量、均值、标准差等。<br>
 <img src="https://stdasein.life/post-images/1597715778189.png" alt="" loading="lazy"><br>
-以LotArea特征为例，我们可以得知其没有缺失值，但标准差和极差非常大，这为后续分析提供了线索<br>
-Correlations<br>
+以LotArea特征为例，可知其数据类型为数值型，没有缺失值，但标准差相较于其他特征要大得多，意味着可能存在异常值。</p>
+<p><strong>Correlations</strong><br>
+Correlations衡量各变量之间的相关性，为特征工程提供支持。<br>
 <img src="https://stdasein.life/post-images/1597716013886.png" alt="" loading="lazy"></p>
 <h1 id="数据清理">数据清理</h1>
+<p>错误的数据会使模型的预测发生偏差，所以在开始预测之前要先进行数据清理，处理数据中的噪音。</p>
 <h2 id="缺失值处理">缺失值处理</h2>
+<p>缺失值处理主要有三种方法：<br>
+1、dropna：将含有缺失值的整列/行舍弃；<br>
+2、fillna：用该列/行的均值、中位数或众数等填充缺失值；<br>
+3、模型预测：可用knn等模型预测缺失值；</p>
 <pre><code>#查看缺失值占比
-null_count = X_data.isnull().sum().sort_values(ascending = False)
-ratio = null_count/len(X_data)
-nulldata = pd.concat([null_count,ratio],axis = 1, keys=['count','ratio'])
-nulldata[ratio&gt;0]
+def CountNull(data):
+    null_count = data.isnull().sum().sort_values(ascending = False)
+    ratio = null_count/len(data)
+    nulldata = pd.concat([null_count,ratio],axis = 1, keys=['count','ratio'])
+    return nulldata[ratio&gt;0]
+
+CountNull(X_data)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597623449444.png" alt="" loading="lazy"><br>
-根据官方提供的data_description文本，有些特征出现缺失值是因为房子没有该特征（例如有的房子没有游泳池），对于这一类可以选择填入none，如果是数值类型的就填入0；除此之外，对于缺失值比较少的特征，可以直接填充众数。</p>
+<p><img src="https://stdasein.life/post-images/1597623449444.png" alt="" width="300" loading="lazy"><br>
+上图只截取了部分内容。<br>
+根据官方提供的data_description文本，有些特征出现缺失值是因为房子没有该特征（例如有的房子没有游泳池），对于这一类可以选择填入none，如果是数值类型的就填入0；除此之外，对于缺失值比较少的特征（缺失值仅有1或2个），可以直接填充众数。</p>
 <pre><code>#选择缺失值数量为1或2的特征
-feature_fill_mode = nulldata[(nulldata['count'] == 1) | (nulldata['count'] == 2)].index
+feature_fill_mode = CountNull(X_data)[(CountNull(X_data)['count'] == 1) | (CountNull(X_data)['count'] == 2)].index
 #因为同一个社区的LotFrontage（街道到房屋的距离）应该比较接近，所以填充同社区的中位数
 feature_fill_neig = ['LotFrontage']
 #选择要填入none的特征
@@ -188,11 +202,11 @@ for col in feature_fill_zero:
     X_data[col].fillna(0,inplace=True)
     
 X_data['LotFrontage'] = X_data.groupby(&quot;Neighborhood&quot;)['LotFrontage'].transform(lambda x: x.fillna(x.median()))    
-X_data.isnull().sum()
+CountNull(X_data)
 </code></pre>
-<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1597625545484.png" alt="" loading="lazy"></figure>
-<p>异常值处理<br>
-（1）观察法</p>
+<h2 id="异常值处理">异常值处理</h2>
+<p>（1）观察法<br>
+我们可以通过描述性统计分析和可视化来寻找可能存在的异常值。</p>
 <pre><code>#筛选数值型特征
 num_features = X_data.select_dtypes('number')
 num_names = num_features.columns
@@ -204,11 +218,12 @@ des.sort_values(by = 'std',ascending = False, axis = 1)
 可见，LotArea的标准差要远大于其他特征，且极差也非常大，应进一步研究是否存在异常值。</p>
 <pre><code>ax = sns.scatterplot(x=&quot;LotArea&quot;, y=&quot;SalePrice&quot;, data=train_data)
 </code></pre>
-<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597628238676.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1597628238676.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#用中位数替换异常值
 X_data.loc[X_data['LotArea']&gt;150000,['LotArea']]=9453
 </code></pre>
-<p>（2）使用IsolationForest算法剔除异常值</p>
+<p>（2）使用IsolationForest剔除异常值<br>
+IsolationForest是适用于连续数据的无监督异常检测方法，该算法会将数据只占很少量、数据特征值和正常数据差别很大的值视为异常值。</p>
 <pre><code>#因为只需剔除训练集的异常值，所以暂时将训练、测试集分离
 X_train = X_data.iloc[:1460,:]
 X_test = X_data.iloc[1460:,:]
@@ -233,25 +248,40 @@ X_data_removed[num_names] = X_data_removed[num_names].astype(int)
 X_data_removed.reset_index(drop=True, inplace=True)
 </code></pre>
 <h1 id="特征工程">特征工程</h1>
-<h2 id="特征构建">特征构建</h2>
-<pre><code>#构建房屋总面积
-X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']
-#构建房屋翻修年限
-X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']
-#构建房屋总评分
-X_data_removed['Total_Home_Quality'] = X_data_removed['OverallQual'] + X_data_removed['OverallCond']
-#构建房屋建造年限
-X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt'] 
-#构建总浴室数量
-X_data_removed['Total_Bathrooms'] = (X_data_removed['FullBath'] + (0.5 * X_data_removed['HalfBath']) +
-                            X_data_removed['BsmtFullBath'] + (0.5 * X_data_removed['BsmtHalfBath']))
-#构建门廊总面积
-X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_removed['3SsnPorch'] +
-                            X_data_removed['EnclosedPorch'] + X_data_removed['ScreenPorch'] +
-                            X_data_removed['WoodDeckSF'])
+<p>特征工程是机器学习的核心环节，好的特征工程可以有效提高预测的精度，其主要步骤如下图所示：<br>
+<img src="https://stdasein.life/post-images/1597820518048.png" alt="" width="400" loading="lazy"></p>
+<h2 id="特征类型">特征类型</h2>
+<p>因为不同的数据类型有不同的处理方式，所以第一步是识别各特征的数据类型：<br>
+1、数值型<br>
+2、类别型</p>
+<pre><code>#筛选全部数值型特征
+numeric_feature = X_data_removed.select_dtypes('number')
+numeric_names = numeric_feature.columns
+numeric_name
 </code></pre>
+<p><img src="https://stdasein.life/post-images/1597822957068.png" alt="" width="400" loading="lazy"><br>
+根据特征的说明文档，MSSubClass（房屋类型）、OverallQual（房屋质量评分）、OverallCond（房屋环境评分）应划分为类别型特征：</p>
+<pre><code>X_data_removed[['MSSubClass','OverallQual','OverallCond']] = X_data_removed[['MSSubClass',                                                           'OverallQual','OverallCond']].astype(str)
+</code></pre>
+<h2 id="特征构建">特征构建</h2>
+<p>数值型：<br>
+#构建房屋总面积<br>
+X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']<br>
+#构建房屋翻修年限<br>
+X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']<br>
+#构建房屋总评分<br>
+#构建房屋建造年限<br>
+X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt']<br>
+#构建总浴室数量<br>
+X_data_removed['Total_Bathrooms'] = (X_data_removed['FullBath'] + (0.5 * X_data_removed['HalfBath']) +<br>
+X_data_removed['BsmtFullBath'] + (0.5 * X_data_removed['BsmtHalfBath']))<br>
+#构建门廊总面积<br>
+X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_removed['3SsnPorch'] +<br>
+X_data_removed['EnclosedPorch'] + X_data_removed['ScreenPorch'] +<br>
+X_data_removed['WoodDeckSF'])</p>
 <h2 id="特征规整">特征规整</h2>
-<p>标准化</p>
+<p>1、标准化<br>
+这里只对数值型数据进行标准化处理：</p>
 <pre><code>#筛选数值型数据
 num = X_data_removed.select_dtypes('number')
 num_names = num.columns
@@ -275,21 +305,21 @@ def sKewNess(data):
 
 sKewNess(X_data_removed[num_names])
 </code></pre>
-<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597649891150.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597649891150.png" alt="" loading="lazy"></figure>
 <pre><code>skew_index = sKewNess(X_data_removed[num_names]).index
 for i in skew_index:
     X_data_removed[i] = boxcox1p(X_data_removed[i], boxcox_normmax(X_data_removed[i] + 1))
     
 sKewNess((X_data_removed[num_names]))
 </code></pre>
-<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597650731012.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597650731012.png" alt="" loading="lazy"></figure>
 <pre><code>#查看标签偏度
 sns.distplot(y_train)
 </code></pre>
-<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"></figure>
 <pre><code>y_train = np.log1p(y_train)
 </code></pre>
-<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
 <p>编码与哑变量</p>
 <pre><code>#用get_dummies函数将非数值型特征转化为哑变量
 X_data_removed = pd.get_dummies(X_data_removed)

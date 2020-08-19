@@ -6,7 +6,7 @@
 
 <title>电商指标分析 | Dasein</title>
 
-<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597719156865">
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1597827390937">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://stdasein.life/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1597719156865" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1597827390937" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -189,10 +189,7 @@ user_log.head()
 <h3 id="12-合并数据">1.2 合并数据</h3>
 <p>为了方便分析，将user_info和user_log进行合并：</p>
 <pre><code>user_full = pd.merge(user_log,user_info)
-user_full.head()
-</code></pre>
-<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597367671985.png" alt="" width="500" loading="lazy"></figure>
-<pre><code>#查看数据量
+#查看数据量
 user_full.shape
 (54925330, 9)
 </code></pre>
@@ -205,7 +202,7 @@ ratio = count_null/len(user_full)
 count_ratio = pd.concat([count_null,ratio],axis=1,keys = ['count','ratio'])
 count_ratio[count_ratio.ratio&gt;0]
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597369373220.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597369373220.png" alt="" width="300" loading="lazy"><br>
 可见，缺失值的占比较小，且只分布在性别、年龄和品牌三列。</p>
 <h3 id="22-填充缺失值">2.2 填充缺失值</h3>
 <p>因为数据集里性别未知表示为NaN或2，所以我们将缺失值统一填充为2；同理，将年龄缺失值填充为0。</p>
@@ -257,14 +254,14 @@ user_full['date'] = pd.to_datetime(user_full['date'],format='%Y%m%d')
 user_full.drop(['time_stamp'],axis=1,inplace=True)
 user_full.head()
 </code></pre>
-<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597369687965.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597369687965.png" alt="" width="500" loading="lazy"></figure>
 <h1 id="五-数据分析">五、数据分析</h1>
 <p>这部分将会对数据集进行具体分析。</p>
 <h2 id="1人">1.人</h2>
 <p>本环节关注点是用户的行为习惯，利用AARRR的部分因素、转化率概念和kmeans模型对用户行为进行分析。</p>
 <h3 id="acquisition客户获取">Acquisition：客户获取</h3>
 <h4 id="指标选取">指标选取</h4>
-<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597369796598.png" alt="" width="400" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597369796598.png" alt="" width="400" loading="lazy"></figure>
 <ul>
 <li>pv：<strong>即Page View，网站浏览量，指页面浏览的次数，用以衡量网站用户访问的网页数量</strong>。用户每次打开一个页面便记录1次PV，多次打开同一页面则浏览量累计</li>
 <li>uv：<strong>即Unique Visitor，独立访客数，指一天内访问某站点的人数，以cookie为依据</strong>。1天内同一访客的多次访问只记录为一个访客。</li>
@@ -314,7 +311,7 @@ ax3.plot(x,pv_uv)
 ax3.set_ylabel('pv/uv')
 plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25, wspace=0.35)
 </code></pre>
-<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1597370253678.png" alt="" width="400" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597370253678.png" alt="" width="400" loading="lazy"></figure>
 <h4 id="分析总结">分析总结</h4>
 <p><strong>整体上看，五月到十一月的浏览量呈现出增长的趋势</strong>，增长可归因于两方面：</p>
 <ul>
@@ -385,7 +382,7 @@ df_day
 </ul>
 <h3 id="retention客户留存">Retention：客户留存</h3>
 <h4 id="指标选取-2">指标选取</h4>
-<figure data-type="image" tabindex="7"><img src="https://stdasein.life/post-images/1597371117577.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1597371117577.png" alt="" width="500" loading="lazy"></figure>
 <ul>
 <li>留存率：用户在某段时间内开始使用应用，经过一段时间后，仍然继续使用该应用的用户，被认作是留存用户。这部分用户占当时新增用户的比例即是留存率，会按照每隔1单位时间（例日、周、月）来进行统计。</li>
 <li>复购率：复购率就是重复购买的用户占所有存在购买行为用户的比率。</li>
@@ -535,7 +532,7 @@ pivot = pivot.fillna(0)
 pivot_tr = pivot.applymap(lambda x:1 if x&gt;1 else 0 if x == 1 else np.nan)
 pivot_tr.head()
 </code></pre>
-<figure data-type="image" tabindex="8"><img src="https://stdasein.life/post-images/1597372127016.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="7"><img src="https://stdasein.life/post-images/1597372127016.png" alt="" width="500" loading="lazy"></figure>
 <pre><code>#求复购率，用sum统计购买次数大于1的用户数量，用count统计所有购买用户数
 ratio = pivot_tr.sum()/pivot_tr.count()
 ratio
@@ -556,7 +553,7 @@ plt.xlabel('month')
 plt.ylabel('repurchase rate')
 plt.suptitle('monthly repurchase rate')
 </code></pre>
-<figure data-type="image" tabindex="9"><img src="https://stdasein.life/post-images/1597372188346.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://stdasein.life/post-images/1597372188346.png" alt="" width="500" loading="lazy"></figure>
 <p>分析小结：</p>
 <p>各月份复购率均保持在50%以上，用户忠诚度高。</p>
 <p>8—11月复购率持续增长：<br>
@@ -578,7 +575,7 @@ pivot_rep = user_buy.pivot_table(index = 'user_id',columns = 'month',values = 'a
 pivot_rep_tr = pivot_rep.applymap(lambda x: 1 if x&gt;0 else 0)
 pivot_rep_tr.head()
 </code></pre>
-<figure data-type="image" tabindex="10"><img src="https://stdasein.life/post-images/1597372364000.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://stdasein.life/post-images/1597372364000.png" alt="" width="400" loading="lazy"></figure>
 <pre><code>#定义函数转化透视表每行数值：本月与下月同时为1（购买）的，在本月生成1;本月与下月分布为1,0（本月有下月没有购买），在本月生成0；本月为0，则在本月生成nan.
 def transform(data):
     trans_list = []
@@ -600,7 +597,7 @@ final_pivot = pivot_rep_tr.apply(transform,axis=1)
 final_pivot.columns = range(5,12)
 final_pivot.head()
 </code></pre>
-<figure data-type="image" tabindex="11"><img src="https://stdasein.life/post-images/1597373824299.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://stdasein.life/post-images/1597373824299.png" alt="" width="500" loading="lazy"></figure>
 <pre><code>#计算回购率
 re_ratio = final_pivot.sum()/final_pivot.count()
 re_ratio
@@ -666,7 +663,7 @@ group_con = user_full_con[['user_id','item_id',
             'action_type']].groupby(['user_id','item_id']).sum()
 group_con.head()
 </code></pre>
-<figure data-type="image" tabindex="12"><img src="https://stdasein.life/post-images/1597373973523.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="11"><img src="https://stdasein.life/post-images/1597373973523.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#浏览—&gt;流失标记为10
 pv_buy = group_con[group_con['action_type'] == 10]
 #浏览—&gt;购买标记为0
@@ -802,7 +799,7 @@ r.sort_values(by='聚类个数',ascending = False).assign(ratio =
 item_buy = item_buy.rename(columns={'action_type':'buy_times'})
 item_buy.sort_values(by = 'buy_times',ascending = False).head(10)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597374437956.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597374437956.png" alt="" width="300" loading="lazy"><br>
 查看销量分布情况：</p>
 <pre><code>item_buy_count = item_buy[['item_id','buy_times']].groupby('buy_times').count()
 item_buy_count = item_buy_count.rename(columns = {'item_id':'item_num'})
@@ -810,7 +807,7 @@ item_buy_count_head = item_buy_count.sort_values(by = 'item_num',
                                                 ascending = False).head(10)
 item_buy_count_head.div(item_buy_count['item_num'].sum())
 </code></pre>
-<figure data-type="image" tabindex="13"><img src="https://stdasein.life/post-images/1597374485072.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="12"><img src="https://stdasein.life/post-images/1597374485072.png" alt="" width="200" loading="lazy"></figure>
 <pre><code>from matplotlib.pyplot import MultipleLocator
 plt.plot(item_buy_count_head)
 plt.xlabel('购买次数')
@@ -820,7 +817,7 @@ x_major_locator=MultipleLocator(1)
 ax=plt.gca()
 ax.xaxis.set_major_locator(x_major_locator)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597374516180.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597374516180.png" alt="" width="400" loading="lazy"><br>
 分析小结：</p>
 <ul>
 <li>销量最高的商品总共售出了846件，相比之下，接近80%的商品只出售过1到3次，呈现出长尾效应。</li>
@@ -854,19 +851,19 @@ item = pd.merge(item,item_fav,on = 'item_id',how = 'inner')
 #查看销量前十的商品
 item.sort_values(by = 'buy_num', ascending = False).head(10)
 </code></pre>
-<figure data-type="image" tabindex="14"><img src="https://stdasein.life/post-images/1597374742809.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="13"><img src="https://stdasein.life/post-images/1597374742809.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#查看浏览量前十的商品
 item.sort_values(by = 'pv_num', ascending = False).head(10)
 </code></pre>
-<figure data-type="image" tabindex="15"><img src="https://stdasein.life/post-images/1597374864539.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="14"><img src="https://stdasein.life/post-images/1597374864539.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#查看加购量前十的商品
 item.sort_values(by = 'cart_num', ascending = False).head(10)
 </code></pre>
-<figure data-type="image" tabindex="16"><img src="https://stdasein.life/post-images/1597374896877.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="15"><img src="https://stdasein.life/post-images/1597374896877.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#查看收藏量前十的商品
 item.sort_values(by = 'fav_num', ascending = False).head(10)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597374931118.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597374931118.png" alt="" width="300" loading="lazy"><br>
 结论：</p>
 <ul>
 <li>流量前十的商品中只有一件位于销量前十，可能说明：1）用户本身需求并不多，但平台推荐多，会导致点击率高，但最终销量低 。2）用户本身有需求，而平台并没有推荐到位，用户通过自己搜索和寻找，促使该商品销量高。</li>
@@ -885,7 +882,7 @@ user_buy_cat = user_buy_cat.sort_values(by = 'buy_count',ascending = False)
 user_buy_cat = user_buy_cat.reset_index()
 user_buy_cat.head()
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375115434.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375115434.png" alt="" width="300" loading="lazy"><br>
 可见，销量前五的商品种类差距并不大。<br>
 分析商品种类与用户行为的联系：</p>
 <pre><code>#将具有购买行为的用户id和商品种类与全部数据合并，突显被购买商品种类对应的全部用户行为
@@ -896,18 +893,18 @@ user_behav_cat = user_behav_cat[['cat_id','action_type']].groupby('cat_id').coun
 user_behav_cat = user_behav_cat.rename(columns ={'action_type':'behav_count'} )
 user_behav_cat.sort_values(by = 'behav_count',ascending=False).head()
 </code></pre>
-<figure data-type="image" tabindex="17"><img src="https://stdasein.life/post-images/1597375153801.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="16"><img src="https://stdasein.life/post-images/1597375153801.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#合并被购买商品种类的购买计数与行为计数
 user_cat_buy_behav = pd.merge(user_buy_cat,user_behav_cat,on = 'cat_id',how = 'inner')
 user_cat_buy_behav = user_cat_buy_behav.reset_index()
 user_cat_buy_behav = user_cat_buy_behav.assign(ratio = user_cat_buy_behav['behav_count']/ user_cat_buy_behav['buy_count'])
 user_cat_buy_behav.head(10)
 </code></pre>
-<figure data-type="image" tabindex="18"><img src="https://stdasein.life/post-images/1597375184490.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="17"><img src="https://stdasein.life/post-images/1597375184490.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#尾部商品种类
 user_cat_buy_behav.tail(10)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375214816.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375214816.png" alt="" width="300" loading="lazy"><br>
 分析小结：</p>
 <ul>
 <li>头部商品种类销量大，但对应的行为—&gt;购买转化率较尾部种类低，平均20个行为转化为1个购买，而尾部商品种类的平均转化率为3：1</li>
@@ -936,7 +933,7 @@ order_items_num = order_num[order_num['item_id'] &gt; 1].reset_index()
 order_items_num = order_items_num[['user_id','date','item_id']].rename(columns={'item_id':'item_num'})
 order_items_num.sort_values(by = 'item_num',ascending = False).head(10)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375292383.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375292383.png" alt="" width="300" loading="lazy"><br>
 按销量排名前十的订单均发生在购物狂欢节。<br>
 在订单中添加商品id和种类：</p>
 <pre><code>#合并，突显订单中的商品和商品种类
@@ -953,13 +950,13 @@ relation = pd.merge(relation_cat_a,relation_cat_b, on = ['user_id','date'], how 
 relation = relation[relation['cat_id_x'] &lt; relation['cat_id_y']]
 relation.head()
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375365800.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375365800.png" alt="" width="300" loading="lazy"><br>
 通过计算种类两两出现的频率来表示种类之间的关联性：</p>
 <pre><code>rel_count = relation[['cat_id_x','cat_id_y','user_id']].groupby(['cat_id_x','cat_id_y']).count()
 rel_count = rel_count.rename(columns = {'user_id':'relation'}).sort_values(by = 'relation',ascending = False)
 rel_count.reset_index().head(10)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375397457.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375397457.png" alt="" width="300" loading="lazy"><br>
 分析小结：</p>
 <ul>
 <li>某些商品种类之间存在关联性，用户购买了其中一种时可能也会购买另一种。</li>
@@ -978,12 +975,12 @@ relation_item = pd.merge(relation_item_a,relation_item_b,
 relation_item = relation_item[relation_item['item_id_x'] &lt; relation_item['item_id_y']]
 relation_item.head()
 </code></pre>
-<figure data-type="image" tabindex="19"><img src="https://stdasein.life/post-images/1597375442580.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="18"><img src="https://stdasein.life/post-images/1597375442580.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>rel_item_count = relation_item[['item_id_x','item_id_y','user_id']].groupby(['item_id_x','item_id_y']).count()
 rel_item_count = rel_item_count.rename(columns = {'user_id':'relation'}).sort_values(by = 'relation',ascending = False)
 rel_item_count.reset_index().head()
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375468348.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375468348.png" alt="" width="300" loading="lazy"><br>
 分析小结：</p>
 <ul>
 <li>282032号和642180号商品具有最高的关联性。</li>
@@ -1000,7 +997,7 @@ seller_group = user_full[['seller_id','item_id']].groupby('seller_id').count().r
 seller_group = seller_group.rename(columns = {'item_id':'item_count'})
 seller_group.sort_values(by = 'item_count',ascending = False).head(10)
 </code></pre>
-<figure data-type="image" tabindex="20"><img src="https://stdasein.life/post-images/1597375509797.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="19"><img src="https://stdasein.life/post-images/1597375509797.png" alt="" width="200" loading="lazy"></figure>
 <pre><code>#统计销售商品数量
 seller_buy_group = user_buy[['seller_id','item_id']].groupby('seller_id').count().reset_index()
 seller_buy_group = seller_buy_group.rename(columns = {'item_id':'item_buy_count'})
@@ -1010,7 +1007,7 @@ seller_combined = pd.merge(seller_group,seller_buy_group,on = 'seller_id',how = 
 seller_combined = seller_combined.assign(ratio = seller_combined['item_buy_count']/seller_combined['item_count'])
 seller_combined.sort_values(by = 'item_buy_count',ascending = False).head(10)
 </code></pre>
-<figure data-type="image" tabindex="21"><img src="https://stdasein.life/post-images/1597375547141.png" alt="" width="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="20"><img src="https://stdasein.life/post-images/1597375547141.png" alt="" width="300" loading="lazy"></figure>
 <pre><code>#计算平均转化率
 seller_combined['ratio'].mean()
 0.0781
@@ -1027,15 +1024,11 @@ seller_1200 = user_full[user_full['seller_id']==1200]
 seller_1200_buy = seller_1200[seller_1200['action_type']==2]
 pivot_1200_re = seller_1200_buy.pivot_table(columns='month',index='user_id',
                                             values='action_type',aggfunc='count')
-pivot_1200_re.head()
-</code></pre>
-<figure data-type="image" tabindex="22"><img src="https://stdasein.life/post-images/1597375602620.png" alt="" width="500" loading="lazy"></figure>
-<pre><code>#转换数值以计算复购率
+
+#转换数值以计算复购率
 pivot_1200_re = pivot_1200_re.applymap(lambda x:1 if x&gt;1 else 0 if x == 1 else np.nan)
-pivot_1200_re.head()
-</code></pre>
-<figure data-type="image" tabindex="23"><img src="https://stdasein.life/post-images/1597375626358.png" alt="" width="500" loading="lazy"></figure>
-<pre><code>#卖家1200复购率
+
+#卖家1200复购率
 ratio_1200 = pd.Series(pivot_1200_re.sum()/pivot_1200_re.count(),name = 're_ratio')
 
 #计算卖家3828复购率
@@ -1050,7 +1043,7 @@ ration_merge = pd.merge(ratio_1200,ratio_3828,on = 'month',how = 'inner')
 ration_merge = ration_merge.rename(columns = {'re_ratio_x':'re_ratio_1200','re_ratio_y':'re_ratio_3828'})
 ration_merge.applymap(lambda x: format(x,'.2%'))
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597375698314.png" alt="" width="500" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597375698314.png" alt="" width="300" loading="lazy"><br>
 结论：</p>
 <ul>
 <li>假设成立，1200号卖家的复购率整体上高于3828号卖家，如果其他条件不变，1200号卖家的顾客忠诚度更高。</li>
