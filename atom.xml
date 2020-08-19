@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-19T09:10:52.061Z</updated>
+    <updated>2020-08-19T09:18:17.429Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -178,24 +178,25 @@ numeric_name
 </code></pre>
 <p><img src="https://stdasein.life/post-images/1597822957068.png" alt="" width="400" loading="lazy"><br>
 根据特征的说明文档，MSSubClass（房屋类型）、OverallQual（房屋质量评分）、OverallCond（房屋环境评分）应划分为类别型特征：</p>
-<pre><code>X_data_removed[['MSSubClass','OverallQual','OverallCond']] = X_data_removed[['MSSubClass',                                                           'OverallQual','OverallCond']].astype(str)
+<pre><code>X_data_removed[['MSSubClass','OverallQual','OverallCond']] = X_data_removed[['MSSubClass', 'OverallQual','OverallCond']].astype(str)
 </code></pre>
 <h2 id="特征构建">特征构建</h2>
-<p>数值型：<br>
-#构建房屋总面积<br>
-X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']<br>
-#构建房屋翻修年限<br>
-X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']<br>
-#构建房屋总评分<br>
-#构建房屋建造年限<br>
-X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt']<br>
-#构建总浴室数量<br>
-X_data_removed['Total_Bathrooms'] = (X_data_removed['FullBath'] + (0.5 * X_data_removed['HalfBath']) +<br>
-X_data_removed['BsmtFullBath'] + (0.5 * X_data_removed['BsmtHalfBath']))<br>
-#构建门廊总面积<br>
-X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_removed['3SsnPorch'] +<br>
-X_data_removed['EnclosedPorch'] + X_data_removed['ScreenPorch'] +<br>
-X_data_removed['WoodDeckSF'])</p>
+<p>数值型：</p>
+<pre><code>#构建房屋总面积
+X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']
+#构建房屋翻修年限
+X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']
+#构建房屋总评分
+#构建房屋建造年限
+X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt'] 
+#构建总浴室数量
+X_data_removed['Total_Bathrooms'] = (X_data_removed['FullBath'] + (0.5 * X_data_removed['HalfBath']) +
+                            X_data_removed['BsmtFullBath'] + (0.5 * X_data_removed['BsmtHalfBath']))
+#构建门廊总面积
+X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_removed['3SsnPorch'] +
+                            X_data_removed['EnclosedPorch'] + X_data_removed['ScreenPorch'] +
+                            X_data_removed['WoodDeckSF'])
+</code></pre>
 <h2 id="特征规整">特征规整</h2>
 <p>1、标准化<br>
 这里只对数值型数据进行标准化处理：</p>
