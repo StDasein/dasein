@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-19T09:10:05.455Z</updated>
+    <updated>2020-08-19T09:10:52.061Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -20,7 +20,7 @@
 <p>房价预测是kaggle平台上的一个线性回归问题，要求参赛者根据房屋的属性预测房价。</p>
 <h1 id="数据概况">数据概况</h1>
 <p>数据来源：<a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview">kaggle</a></p>
-<p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价<br>
+<p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价）<br>
 <a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data">数据详情</a></p>
 <h1 id="框架">框架</h1>
 <p><img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"><br>
