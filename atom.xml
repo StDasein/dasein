@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-19T09:18:17.429Z</updated>
+    <updated>2020-08-20T00:22:01.163Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -23,12 +23,11 @@
 <p>数据内容：数据集含有79个特征（房子的各种属性：面积、有无游泳池、卧室数量等）以及1个标签（房价）<br>
 <a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data">数据详情</a></p>
 <h1 id="框架">框架</h1>
-<p><img src="https://stdasein.life/post-images/1597710174756.png" alt="" width="400" height="400" loading="lazy"><br>
-数据探索：对数据集进行初步的观察以获得整体概念。<br>
+<p><img src="https://stdasein.life/post-images/1597881995249.png" alt="" width="400" height="400" loading="lazy"><br>
+数据探索：对数据集进行初步观察以获得整体概念。<br>
 数据清理：对数据集可能存在的缺失值和异常值进行处理。<br>
 特征工程：在理解现有特征的基础上尝试构建新特征，并进行规整、选择。<br>
-模型构建、选择：构建预测模型。<br>
-预测：利用构建好的模型预测房价。</p>
+模型构建、选择：构建预测模型、对模型评分并选择最优的模型进行预测。</p>
 <h1 id="数据探索分析">数据探索分析</h1>
 <p>本阶段的目的是回答以下问题：<br>
 1、特征的数据类型是什么？<br>
@@ -70,7 +69,7 @@ report
 <p><strong>Overview</strong><br>
 在Overview我们可以了解到数据集的基本信息：缺失值数量、重复行数和数据的类型。<br>
 <img src="https://stdasein.life/post-images/1597715512282.png" alt="" loading="lazy"><br>
-可见，数据集有13,965个缺失值需要处理，且数据主要为文本型（46）和数值型（33），在后续分析时要进行区分。</p>
+可见，数据集没有重复的行或列，但有13,965个缺失值需要处理，且数据主要为文本型（46）和数值型（33），这在后续分析时要我们进一步区分。</p>
 <p><strong>Variables</strong><br>
 variables部分会显示各特征的详细情况，例如、缺失值数量、唯一值数量、均值、标准差等。<br>
 <img src="https://stdasein.life/post-images/1597715778189.png" alt="" loading="lazy"><br>
@@ -79,12 +78,15 @@ variables部分会显示各特征的详细情况，例如、缺失值数量、�
 Correlations衡量各变量之间的相关性，为特征工程提供支持。<br>
 <img src="https://stdasein.life/post-images/1597716013886.png" alt="" loading="lazy"></p>
 <h1 id="数据清理">数据清理</h1>
-<p>错误的数据会使模型的预测发生偏差，所以在开始预测之前要先进行数据清理，处理数据中的噪音。</p>
+<p>错误的数据会使模型的预测发生偏差，所以在开始预测之前要先进行数据清理，处理数据中的噪音。<br>
+<img src="https://stdasein.life/post-images/1597882228594.png" alt="" width="400" height="400" loading="lazy"><br>
+数据清理可分为三个步骤：处理缺失值、处理异常值和处理重复值。我们在数据探索部分已经知道数据集不存在重复，所以这里只需关注前两种情况。</p>
 <h2 id="缺失值处理">缺失值处理</h2>
 <p>缺失值处理主要有三种方法：<br>
 1、dropna：将含有缺失值的整列/行舍弃；<br>
 2、fillna：用该列/行的均值、中位数或众数等填充缺失值；<br>
-3、模型预测：可用knn等模型预测缺失值；</p>
+3、模型预测：可用knn等模型预测缺失值；<br>
+模型预测方法相对来说会有更高的可靠性，但由于本数据集的数据缺失大部分都有单一且明确的原因，所以用fillna的方法会更加方便灵活。</p>
 <pre><code>#查看缺失值占比
 def CountNull(data):
     null_count = data.isnull().sum().sort_values(ascending = False)
@@ -169,7 +171,7 @@ X_data_removed.reset_index(drop=True, inplace=True)
 <img src="https://stdasein.life/post-images/1597820518048.png" alt="" width="400" loading="lazy"></p>
 <h2 id="特征类型">特征类型</h2>
 <p>因为不同的数据类型有不同的处理方式，所以第一步是识别各特征的数据类型：<br>
-1、数值型<br>
+1、数值型：连续、离散<br>
 2、类别型</p>
 <pre><code>#筛选全部数值型特征
 numeric_feature = X_data_removed.select_dtypes('number')
@@ -181,12 +183,11 @@ numeric_name
 <pre><code>X_data_removed[['MSSubClass','OverallQual','OverallCond']] = X_data_removed[['MSSubClass', 'OverallQual','OverallCond']].astype(str)
 </code></pre>
 <h2 id="特征构建">特征构建</h2>
-<p>数值型：</p>
+<p>我们可以利用原有的特征构建新特征：</p>
 <pre><code>#构建房屋总面积
 X_data_removed['TotalHouseArea'] = X_data_removed['TotalBsmtSF'] + X_data_removed['1stFlrSF'] + X_data_removed['2ndFlrSF']
 #构建房屋翻修年限
 X_data_removed['YearsSinceRemodel'] = X_data_removed['YrSold'] - X_data_removed['YearRemodAdd']
-#构建房屋总评分
 #构建房屋建造年限
 X_data_removed['YrBlt'] = X_data_removed['YrSold'] - X_data_removed['YearBuilt'] 
 #构建总浴室数量
@@ -199,21 +200,21 @@ X_data_removed['Total_porch_sf'] = (X_data_removed['OpenPorchSF'] + X_data_remov
 </code></pre>
 <h2 id="特征规整">特征规整</h2>
 <p>1、标准化<br>
+标准化使不同维度上的特征在数值上更具可比性，能够提升模型的精度。<br>
 这里只对数值型数据进行标准化处理：</p>
 <pre><code>#筛选数值型数据
 num = X_data_removed.select_dtypes('number')
 num_names = num.columns
 #引入标准化工具并进行标准化
-from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
+from sklearn.preprocessing import MinMaxScaler
+#创建对象，限定范围（1，2）
+scaler = MinMaxScaler(feature_range=(1, 2))
 X_data_removed[num_names] = scaler.fit_transform(X_data_removed[num_names])
 </code></pre>
-<p>偏分布转化</p>
+<p>2、偏度转化<br>
+正态分布的数据能更好地提高模型的准确度，因此我们要对非正态分布的数据进行转换。</p>
 <pre><code>from scipy.stats import norm, skew    
-from scipy.special import boxcox1p
-from scipy.stats import boxcox_normmax
 from scipy import stats,special
-
 
 #查看特征值的偏度分布
 def sKewNess(data):
@@ -224,13 +225,15 @@ def sKewNess(data):
 sKewNess(X_data_removed[num_names])
 </code></pre>
 <figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597649891150.png" alt="" loading="lazy"></figure>
-<pre><code>skew_index = sKewNess(X_data_removed[num_names]).index
-for i in skew_index:
-    X_data_removed[i] = boxcox1p(X_data_removed[i], boxcox_normmax(X_data_removed[i] + 1))
+<pre><code>#引用sklearn的PowerTransformer工具进行分布转换
+from sklearn.preprocessing import PowerTransformer
+#box-cox方法只对正数生效，因而要配合上面的MinMaxScaler使用
+power = PowerTransformer(method='box-cox')
+X_data_removed[numeric_names] = power.fit_transform(X_data_removed[numeric_names])
     
 sKewNess((X_data_removed[num_names]))
 </code></pre>
-<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597650731012.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597842618747.png" alt="" width="400" loading="lazy"></figure>
 <pre><code>#查看标签偏度
 sns.distplot(y_train)
 </code></pre>
