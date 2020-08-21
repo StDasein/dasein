@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-21T06:38:15.075Z</updated>
+    <updated>2020-08-21T07:47:55.491Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -27,7 +27,7 @@
 数据探索：对数据集进行初步观察以获得整体概念。<br>
 数据清理：对数据集可能存在的缺失值和异常值进行处理。<br>
 特征工程：在理解现有特征的基础上尝试构建新特征，并进行规整、选择。<br>
-模型构建、选择：构建预测模型、对模型评分并选择最优的模型进行预测。</p>
+模型构建：构建预测模型、对模型评分并选择最优的模型进行预测。</p>
 <h1 id="数据探索分析">数据探索分析</h1>
 <p>本阶段的目的是回答以下问题：<br>
 1、特征的数据类型是什么？<br>
@@ -211,8 +211,9 @@ from sklearn.preprocessing import MinMaxScaler
 #创建对象，限定范围（1，2）
 scaler = MinMaxScaler(feature_range=(1, 2))
 X_data_removed[num_names] = scaler.fit_transform(X_data_removed[num_names])
+X_data_removed[numeric_names].head()
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597991752718.png" alt="" width="400" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597991752718.png" alt="" width="500" loading="lazy"><br>
 标准化后，数值的大小被控制在1到2之间。</p>
 <p>2、非正态分布转换<br>
 正态分布的数据能更好地提高模型的准确度，因此我们要对非正态分布的数据进行转换。</p>
@@ -242,15 +243,15 @@ sKewNess((X_data_removed[num_names]))
 <pre><code>#查看标签偏度
 sns.distplot(y_train)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"><br>
-显而易见，房价不是正态分布。</p>
-<pre><code>#对标签进行分布转换
+<p><img src="https://stdasein.life/post-images/1597651434520.png" alt="" width="400" loading="lazy"><br>
+显然，房价不是正态分布。</p>
+<pre><code>#对房价进行正态分布转换
 y_train = np.log1p(y_train)
 </code></pre>
-<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" width="400" loading="lazy"></figure>
 <p>3、编码与哑变量<br>
-算法模型只支持数值型的数据，因此我们需要把类别型数据转换成数值形式。<br>
-<img src="https://stdasein.life/post-images/1597888313241.png" alt="" width="400" loading="lazy"><br>
+许多算法模型只支持数值型的数据，因此我们需要把类别型数据转换成数值形式。<br>
+<img src="https://stdasein.life/post-images/1597992239924.png" alt="" width="400" loading="lazy"><br>
 类别型数据又可以细分为两种类型：无序型（例如性别：男、女两个变量是独立的，没有顺序关系）和有序型（例如质量评分：1分和2分有顺序关系）</p>
 <pre><code>#筛选类别型数据
 X_data_removed[['OverallQual','OverallCond']] = X_data_removed[['OverallQual','OverallCond']].astype(int)
@@ -258,7 +259,7 @@ cat_feature = X_data_removed.select_dtypes('object')
 cat_names = cat_feature.columns
 cat_names
 </code></pre>
-<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597910706940.png" alt="" width="400" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597910706940.png" alt="" width="500" loading="lazy"></figure>
 <pre><code>#区分有序、无序数据
 ordinal_feature= ['ExterQual','ExterCond','BsmtQual','BsmtCond','HeatingQC',
                 'FireplaceQu','GarageQual','GarageCond','PoolQC']
@@ -271,12 +272,12 @@ for i in ordinal_feature:
     X_data_removed[i] = X_data_removed[i].map(rank_dict)
 X_data_removed[ordinal_feature].head()
 </code></pre>
-<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597911169498.png" alt="" width="400" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597911169498.png" alt="" width="500" loading="lazy"></figure>
 <pre><code>#用get_dummies函数将剩下的非数值型特征转化为哑变量
 X_data_removed = pd.get_dummies(X_data_removed)
 X_data_removed.head()
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597911297096.png" alt="" width="400" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1597911297096.png" alt="" width="500" loading="lazy"><br>
 上图只截取了SaleCondition生成的部分哑变量样本。</p>
 <pre><code>X_data_removed.shape
 (2832, 283)
@@ -284,9 +285,10 @@ X_data_removed.head()
 <p>可见，使用get_dummies生成哑变量后，维度由79增长到了283，维度越高模型越容易过拟合。</p>
 <h2 id="特征选择">特征选择</h2>
 <p>特征数量过多可能导致模型过拟合，因此我们可以筛选出最重要的特征以降低特征维度，从而提升模型精度。<br>
-<img src="https://stdasein.life/post-images/1597973797891.png" alt="" width="400" loading="lazy"><br>
-特征选择的方法有：相关系数法、互信息法和递归特征消除法等，这里我们仅选择前两种进行分析。</p>
-<p>定义评分函数</p>
+<img src="https://stdasein.life/post-images/1597992410626.png" alt="" width="400" loading="lazy"><br>
+特征选择的方法有：相关系数法、互信息法、PCA主成分分析和递归特征消除法等，这里我们仅选择前两种进行分析。</p>
+<p>定义评分函数<br>
+定义评分函数方便我们比较不同选择方法的效果：</p>
 <pre><code>#环境设置
 from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import cross_val_score
@@ -299,24 +301,25 @@ X_test = X_data_removed.iloc[len(y_train):,:]
 
 #定义评分函数
 model = RandomForestRegressor(random_state = 42)
-def evaluate_model(X_train,y_train):
+def evaluate(X_train,y_train):
     cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=42)
     scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', 
                         cv=cv, n_jobs=-1, error_score='raise')
     return mean(scores)
 
-#进行特征选择前的模型评分
-evaluate_model(X_train, y_train)
+#进行特征选择前的基本模型评分
+evaluate(X_train, y_train)
 -0.017256
 </code></pre>
-<p>定义特征选择函数</p>
+<p>定义特征选择函数<br>
+相关系数法和互信息法都可以通过SelectKBest实现，因此我们可以定义函数方便转换：</p>
 <pre><code>from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 from sklearn.feature_selection import mutual_info_regression
 
-def select_features(X_train, y_train, X_test,func):
-    # 设定从283个特征中选取280个
-    fs = SelectKBest(score_func=func, k=280)
+def select_features(X_train, y_train, X_test,func,k):
+    # k:283个特征中选取k个,score_func:调用的方法
+    fs = SelectKBest(score_func=func, k=k)
     fs.fit(X_train, y_train)
     # 转换训练集
     X_train_fs = fs.transform(X_train)
@@ -326,17 +329,17 @@ def select_features(X_train, y_train, X_test,func):
 </code></pre>
 <p>（1）相关系数法</p>
 <pre><code>#填入f_regression来调用相关系数法
-X_train_fsc, X_test_fsc, fsc = select_features(X_train, y_train, X_test,f_regression)
-evaluate_model(X_train_fsc, y_train)
+X_train_fsc, X_test_fsc, fsc = select_features(X_train, y_train, X_test,f_regression,280)
+evaluate(X_train_fsc, y_train)
 -0.017265
 </code></pre>
 <p>相较于选择前的 -0.017256，评分略有下降。</p>
 <p>（2）互信息法</p>
-<pre><code>X_train_fsm, X_test_fsm, fsm = select_features(X_train, y_train, X_test,mutual_info_regression)
-evaluate_model(X_train_fsm, y_train)
+<pre><code>X_train_fsm, X_test_fsm, fsm = select_features(X_train, y_train, X_test,mutual_info_regression,280)
+evaluate(X_train_fsm, y_train)
 -0.017217
 </code></pre>
-<p>评分上升了，我们可以用GridSearchCV寻找最优的特征数量：</p>
+<p>评分上升了，我们可以用GridSearchCV继续寻找最优的特征数量：</p>
 <pre><code>from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=42)
@@ -365,11 +368,11 @@ X_test_de = pca_model.transform(X_test)
 X_train_de.shape
 (1383, 124)
 
-evaluate_model(X_train_de,y_train)
+evaluate(X_train_de,y_train)
 -0.017633
 </code></pre>
-<p>PCA法保留了124个特征，但评分并不好。<br>
-保留互信息法选取的282个特征用于预测。</p>
+<p>PCA法保留了124个特征，但评分并不好。</p>
+<p>最终，我们选择评分较好的互信息法的282个特征用于预测：</p>
 <pre><code>X_train_mb,X_test_mb,fs_mb =select_features(X_train, y_train, X_test,mutual_info_regression,282)
 </code></pre>
 <h1 id="模型构建">模型构建</h1>
@@ -385,9 +388,11 @@ from lightgbm import LGBMRegressor
 from sklearn.model_selection import GridSearchCV,cross_val_score,StratifiedKFold
 from sklearn.model_selection import RepeatedKFold
 from sklearn.ensemble import StackingRegressor
-
-
-def get_stacking():
+</code></pre>
+<p>使用堆叠法：<br>
+堆叠法是一种整合多个模型为一个集成模型从而提高预测精度的方法。集成模型一般分两层，第一层会选取几个强力模型作为基本模型，如随机森林、XGboost等，第二层则会选择比较简单的模型，如linearRegressor,详情见：<br>
+<img src="https://blog.csdn.net/wstcjf/article/details/77989963" alt="详解stacking过程" loading="lazy"></p>
+<pre><code>def get_stacking():
     # 构建基本模型
     level0 = list()
     level0.append(('lgbm', LGBMRegressor()))
@@ -400,8 +405,9 @@ def get_stacking():
     # define the stacking ensemble
     model = StackingRegressor(estimators=level0, final_estimator=level1, cv=10)
     return model
-
-def get_models():
+</code></pre>
+<p>引进其它模型：</p>
+<pre><code>def get_models():
     models = dict()
     models['knn'] = KNeighborsRegressor()
     models['cart'] = DecisionTreeRegressor()
@@ -414,14 +420,16 @@ def get_models():
     models['LGBM'] = LGBMRegressor()
     models['stacking'] = get_stacking()
     return models
-
-def evaluate_model(model):
+</code></pre>
+<p>定义评分函数：</p>
+<pre><code>def evaluate_model(model):
     cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
     scores = cross_val_score(model, X_train_mb, y_train, scoring='neg_mean_squared_error', cv=cv, n_jobs=-1, error_score='raise')
     return scores
-
-models = get_models()
-#evaluate the models and store results
+</code></pre>
+<p>模型比较：</p>
+<pre><code>models = get_models()
+#遍历，评估各模型性能
 results, names = list(), list()
 for name, model in models.items():
     scores = evaluate_model(model)
@@ -441,11 +449,14 @@ XGB -0.014 (0.003)<br>
 LGBM -0.015 (0.004)<br>
 stacking -0.012 (0.003)</p>
 </blockquote>
+<p>集成模型的表现最优异，我们将用它作为预测模型：</p>
 <pre><code>model = get_stacking()
 model.fit(X_train_mb,y_train)
 result = model.predict(X_test_mb)
+#因为之前将房价进行了正态分布转换，现在要进行还原
 result = np.expm1(result)
 
+#导出结果
 r=pd.DataFrame()
 r['Id']=test_data['Id']
 r['SalePrice']=result
