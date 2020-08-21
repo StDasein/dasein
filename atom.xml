@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-21T07:47:55.491Z</updated>
+    <updated>2020-08-21T07:51:04.505Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -391,7 +391,7 @@ from sklearn.ensemble import StackingRegressor
 </code></pre>
 <p>使用堆叠法：<br>
 堆叠法是一种整合多个模型为一个集成模型从而提高预测精度的方法。集成模型一般分两层，第一层会选取几个强力模型作为基本模型，如随机森林、XGboost等，第二层则会选择比较简单的模型，如linearRegressor,详情见：<br>
-<img src="https://blog.csdn.net/wstcjf/article/details/77989963" alt="详解stacking过程" loading="lazy"></p>
+<a href="https://blog.csdn.net/wstcjf/article/details/77989963">详解stacking过程</a></p>
 <pre><code>def get_stacking():
     # 构建基本模型
     level0 = list()
