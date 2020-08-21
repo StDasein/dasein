@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-20T00:22:01.163Z</updated>
+    <updated>2020-08-21T06:38:15.075Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -67,7 +67,7 @@ X_data.drop(['Id'],axis=1,inplace=True)
 report
 </code></pre>
 <p><strong>Overview</strong><br>
-在Overview我们可以了解到数据集的基本信息：缺失值数量、重复行数和数据的类型。<br>
+Overview部分提供了数据集的整体信息：缺失值数量、重复行数和数据的类型。<br>
 <img src="https://stdasein.life/post-images/1597715512282.png" alt="" loading="lazy"><br>
 可见，数据集没有重复的行或列，但有13,965个缺失值需要处理，且数据主要为文本型（46）和数值型（33），这在后续分析时要我们进一步区分。</p>
 <p><strong>Variables</strong><br>
@@ -96,9 +96,9 @@ def CountNull(data):
 
 CountNull(X_data)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1597623449444.png" alt="" width="300" loading="lazy"><br>
-上图只截取了部分内容。<br>
-根据官方提供的data_description文本，有些特征出现缺失值是因为房子没有该特征（例如有的房子没有游泳池），对于这一类可以选择填入none，如果是数值类型的就填入0；除此之外，对于缺失值比较少的特征（缺失值仅有1或2个），可以直接填充众数。</p>
+<p><img src="https://stdasein.life/post-images/1597883278080.png" alt="" width="200" loading="lazy"><br>
+<img src="https://stdasein.life/post-images/1597883294548.png" alt="" width="200" loading="lazy"></p>
+<p>根据官方提供的data_description文本，有些特征出现缺失值是因为房子没有该特征（例如有的房子没有游泳池），对于这一类可以选择填入None，如果是数值类型的就填入0；除此之外，对于缺失值比较少的特征（缺失值仅有1或2个），可以直接填充众数。</p>
 <pre><code>#选择缺失值数量为1或2的特征
 feature_fill_mode = CountNull(X_data)[(CountNull(X_data)['count'] == 1) | (CountNull(X_data)['count'] == 2)].index
 #因为同一个社区的LotFrontage（街道到房屋的距离）应该比较接近，所以填充同社区的中位数
@@ -123,9 +123,10 @@ for col in feature_fill_zero:
 X_data['LotFrontage'] = X_data.groupby(&quot;Neighborhood&quot;)['LotFrontage'].transform(lambda x: x.fillna(x.median()))    
 CountNull(X_data)
 </code></pre>
+<p>所有缺失值均已填充完毕。</p>
 <h2 id="异常值处理">异常值处理</h2>
 <p>（1）观察法<br>
-我们可以通过描述性统计分析和可视化来寻找可能存在的异常值。</p>
+所谓观察法，就是通过描述性统计分析和可视化来寻找可能存在的异常值。</p>
 <pre><code>#筛选数值型特征
 num_features = X_data.select_dtypes('number')
 num_names = num_features.columns
@@ -211,7 +212,9 @@ from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler(feature_range=(1, 2))
 X_data_removed[num_names] = scaler.fit_transform(X_data_removed[num_names])
 </code></pre>
-<p>2、偏度转化<br>
+<p><img src="https://stdasein.life/post-images/1597991752718.png" alt="" width="400" loading="lazy"><br>
+标准化后，数值的大小被控制在1到2之间。</p>
+<p>2、非正态分布转换<br>
 正态分布的数据能更好地提高模型的准确度，因此我们要对非正态分布的数据进行转换。</p>
 <pre><code>from scipy.stats import norm, skew    
 from scipy import stats,special
@@ -224,8 +227,9 @@ def sKewNess(data):
 
 sKewNess(X_data_removed[num_names])
 </code></pre>
-<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597649891150.png" alt="" loading="lazy"></figure>
-<pre><code>#引用sklearn的PowerTransformer工具进行分布转换
+<p><img src="https://stdasein.life/post-images/1597649891150.png" alt="" width="300" loading="lazy"><br>
+可见，很多特征都不是正态分布的，我们可以尝试用box-cox对特征进行转换：</p>
+<pre><code>#引用sklearn的PowerTransformer工具
 from sklearn.preprocessing import PowerTransformer
 #box-cox方法只对正数生效，因而要配合上面的MinMaxScaler使用
 power = PowerTransformer(method='box-cox')
@@ -233,33 +237,140 @@ X_data_removed[numeric_names] = power.fit_transform(X_data_removed[numeric_names
     
 sKewNess((X_data_removed[num_names]))
 </code></pre>
-<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597842618747.png" alt="" width="400" loading="lazy"></figure>
+<p><img src="https://stdasein.life/post-images/1597842618747.png" alt="" width="300" loading="lazy"><br>
+得到了一定的改善，但部分数据因为自身的种种局限性仍保持较大的偏度。</p>
 <pre><code>#查看标签偏度
 sns.distplot(y_train)
 </code></pre>
-<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"></figure>
-<pre><code>y_train = np.log1p(y_train)
+<p><img src="https://stdasein.life/post-images/1597651434520.png" alt="" loading="lazy"><br>
+显而易见，房价不是正态分布。</p>
+<pre><code>#对标签进行分布转换
+y_train = np.log1p(y_train)
 </code></pre>
-<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
-<p>编码与哑变量</p>
-<pre><code>#用get_dummies函数将非数值型特征转化为哑变量
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1597651550033.png" alt="" loading="lazy"></figure>
+<p>3、编码与哑变量<br>
+算法模型只支持数值型的数据，因此我们需要把类别型数据转换成数值形式。<br>
+<img src="https://stdasein.life/post-images/1597888313241.png" alt="" width="400" loading="lazy"><br>
+类别型数据又可以细分为两种类型：无序型（例如性别：男、女两个变量是独立的，没有顺序关系）和有序型（例如质量评分：1分和2分有顺序关系）</p>
+<pre><code>#筛选类别型数据
+X_data_removed[['OverallQual','OverallCond']] = X_data_removed[['OverallQual','OverallCond']].astype(int)
+cat_feature = X_data_removed.select_dtypes('object')
+cat_names = cat_feature.columns
+cat_names
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1597910706940.png" alt="" width="400" loading="lazy"></figure>
+<pre><code>#区分有序、无序数据
+ordinal_feature= ['ExterQual','ExterCond','BsmtQual','BsmtCond','HeatingQC',
+                'FireplaceQu','GarageQual','GarageCond','PoolQC']
+nominal_feature = [i for i in cat_names if i not in ordinal_feature]
+</code></pre>
+<p>诸如ExterQual（对外部环境的评分：poor、good、excellent）等特征都可归为有序特征，剩下的即为无序特征。</p>
+<pre><code>#排序
+rank_dict = {'None':0,'Po':1,'Fa':2,'TA':3,'Gd':4,'Ex':5}
+for i in ordinal_feature:
+    X_data_removed[i] = X_data_removed[i].map(rank_dict)
+X_data_removed[ordinal_feature].head()
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1597911169498.png" alt="" width="400" loading="lazy"></figure>
+<pre><code>#用get_dummies函数将剩下的非数值型特征转化为哑变量
 X_data_removed = pd.get_dummies(X_data_removed)
-X_data_removed.shape
-(2848, 306)
+X_data_removed.head()
 </code></pre>
+<p><img src="https://stdasein.life/post-images/1597911297096.png" alt="" width="400" loading="lazy"><br>
+上图只截取了SaleCondition生成的部分哑变量样本。</p>
+<pre><code>X_data_removed.shape
+(2832, 283)
+</code></pre>
+<p>可见，使用get_dummies生成哑变量后，维度由79增长到了283，维度越高模型越容易过拟合。</p>
 <h2 id="特征选择">特征选择</h2>
-<pre><code>X_train_removed = X_data_removed.iloc[:len(X_train),:]
-X_test = X_data_removed.iloc[len(X_train):,:]
-X_train_removed.shape, X_test.shape
-((1389, 306), (1459, 306))
+<p>特征数量过多可能导致模型过拟合，因此我们可以筛选出最重要的特征以降低特征维度，从而提升模型精度。<br>
+<img src="https://stdasein.life/post-images/1597973797891.png" alt="" width="400" loading="lazy"><br>
+特征选择的方法有：相关系数法、互信息法和递归特征消除法等，这里我们仅选择前两种进行分析。</p>
+<p>定义评分函数</p>
+<pre><code>#环境设置
+from sklearn.model_selection import RepeatedKFold
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestRegressor
+from numpy import mean
 
-#PCA主成分分析进行特征降维
-from sklearn.decomposition import PCA
+#分离训练集、测试集
+X_train = X_data_removed.iloc[:len(y_train),:]
+X_test = X_data_removed.iloc[len(y_train):,:]
+
+#定义评分函数
+model = RandomForestRegressor(random_state = 42)
+def evaluate_model(X_train,y_train):
+    cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=42)
+    scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', 
+                        cv=cv, n_jobs=-1, error_score='raise')
+    return mean(scores)
+
+#进行特征选择前的模型评分
+evaluate_model(X_train, y_train)
+-0.017256
+</code></pre>
+<p>定义特征选择函数</p>
+<pre><code>from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
+from sklearn.feature_selection import mutual_info_regression
+
+def select_features(X_train, y_train, X_test,func):
+    # 设定从283个特征中选取280个
+    fs = SelectKBest(score_func=func, k=280)
+    fs.fit(X_train, y_train)
+    # 转换训练集
+    X_train_fs = fs.transform(X_train)
+    # 转换测试集
+    X_test_fs = fs.transform(X_test)
+    return X_train_fs, X_test_fs, fs
+</code></pre>
+<p>（1）相关系数法</p>
+<pre><code>#填入f_regression来调用相关系数法
+X_train_fsc, X_test_fsc, fsc = select_features(X_train, y_train, X_test,f_regression)
+evaluate_model(X_train_fsc, y_train)
+-0.017265
+</code></pre>
+<p>相较于选择前的 -0.017256，评分略有下降。</p>
+<p>（2）互信息法</p>
+<pre><code>X_train_fsm, X_test_fsm, fsm = select_features(X_train, y_train, X_test,mutual_info_regression)
+evaluate_model(X_train_fsm, y_train)
+-0.017217
+</code></pre>
+<p>评分上升了，我们可以用GridSearchCV寻找最优的特征数量：</p>
+<pre><code>from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=42)
+model = RandomForestRegressor()
+fs = SelectKBest(score_func=mutual_info_regression)
+pipeline = Pipeline(steps=[('sel',fs), ('rf', model)])
+grid = dict()
+#sel表示SelectKBest，__k表示SelectKBest的参数k；特征选取范围（253-283）
+grid['sel__k'] = [i for i in range(X_train.shape[1]-30, X_train.shape[1]+1)]
+# 定义GridSearchCV
+search = GridSearchCV(pipeline, grid, scoring='neg_mean_squared_error', n_jobs=-1, cv=cv)
+# 运行GridSearchCV
+results = search.fit(X_train, y_train)
+print('Best MSE: %.3f' % results.best_score_)
+print('Best Config: %s' % results.best_params_)
+Best MSE: -0.017
+Best Config: {'sel__k': 282}
+</code></pre>
+<p>可见，选取282个特征时评分最高，但维度仍然较高，接下来尝试一下PCA法。</p>
+<p>（3）PCA（主成分分析）</p>
+<pre><code>from sklearn.decomposition import PCA
+#指定降维后的主成分方差和比例为99%
 pca_model = PCA(n_components = 0.99)
-X_train_removed = pca_model.fit_transform(X_train_removed)
-X_test = pca_model.transform(X_test)
-X_train_removed.shape, X_test.shape
-((1389, 133), (1459, 133))
+X_train_de = pca_model.fit_transform(X_train)
+X_test_de = pca_model.transform(X_test)
+X_train_de.shape
+(1383, 124)
+
+evaluate_model(X_train_de,y_train)
+-0.017633
+</code></pre>
+<p>PCA法保留了124个特征，但评分并不好。<br>
+保留互信息法选取的282个特征用于预测。</p>
+<pre><code>X_train_mb,X_test_mb,fs_mb =select_features(X_train, y_train, X_test,mutual_info_regression,282)
 </code></pre>
 <h1 id="模型构建">模型构建</h1>
 <pre><code>from numpy import mean, std
@@ -267,6 +378,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.svm import SVR
+from sklearn.kernel_ridge import KernelRidge
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, ExtraTreesRegressor
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
@@ -284,7 +396,7 @@ def get_stacking():
     level0.append(('GDB', GradientBoostingRegressor()))
     level0.append(('XGB', XGBRegressor(objective ='reg:squarederror')))
     # 构建次级模型
-    level1 = LinearRegression()
+    level1 = KernelRidge()
     # define the stacking ensemble
     model = StackingRegressor(estimators=level0, final_estimator=level1, cv=10)
     return model
@@ -294,7 +406,7 @@ def get_models():
     models['knn'] = KNeighborsRegressor()
     models['cart'] = DecisionTreeRegressor()
     models['svm'] = SVR()
-    models['linear'] = LinearRegression()
+    models['k'] = KernelRidge()
     models['Forest'] = RandomForestRegressor()
     models['GDB'] = GradientBoostingRegressor()
     models['Extra'] = ExtraTreesRegressor()
@@ -305,7 +417,7 @@ def get_models():
 
 def evaluate_model(model):
     cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-    scores = cross_val_score(model, X_train_removed, y_train, scoring='neg_mean_squared_error', cv=cv, n_jobs=-1, error_score='raise')
+    scores = cross_val_score(model, X_train_mb, y_train, scoring='neg_mean_squared_error', cv=cv, n_jobs=-1, error_score='raise')
     return scores
 
 models = get_models()
@@ -316,21 +428,22 @@ for name, model in models.items():
     results.append(scores)
     names.append(name)
     print('&gt;%s %.3f (%.3f)' % (name, mean(scores), std(scores)))
-
-&gt;knn -0.023 (0.006)
-&gt;cart -0.039 (0.007)
-&gt;svm -0.018 (0.007)
-&gt;linear -0.013 (0.004)
-&gt;Forest -0.018 (0.005)
-&gt;GDB -0.016 (0.005)
-&gt;Extra -0.018 (0.005)
-&gt;XGB -0.016 (0.005)
-&gt;LGBM -0.016 (0.004)
-&gt;stacking -0.015 (0.005)
-
-model = get_stacking()
-model.fit(X_train_removed,y_train)
-result = model.predict(X_test)
+</code></pre>
+<blockquote>
+<p>knn -0.024 (0.005)<br>
+cart -0.037 (0.007)<br>
+svm -0.013 (0.003)<br>
+k -0.017 (0.006)<br>
+Forest -0.017 (0.004)<br>
+GDB -0.014 (0.004)<br>
+Extra -0.015 (0.004)<br>
+XGB -0.014 (0.003)<br>
+LGBM -0.015 (0.004)<br>
+stacking -0.012 (0.003)</p>
+</blockquote>
+<pre><code>model = get_stacking()
+model.fit(X_train_mb,y_train)
+result = model.predict(X_test_mb)
 result = np.expm1(result)
 
 r=pd.DataFrame()
