@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-21T07:51:04.505Z</updated>
+    <updated>2020-08-23T03:10:39.833Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -11,11 +11,29 @@
     <icon>https://stdasein.life/favicon.ico</icon>
     <rights>All rights reserved 2020, Dasein</rights>
     <entry>
+        <title type="html"><![CDATA[交互式图表：plotly+cufflinks（施工中）]]></title>
+        <id>https://stdasein.life/post/jiao-hu-shi-tu-biao-plotlycufflinks/</id>
+        <link href="https://stdasein.life/post/jiao-hu-shi-tu-biao-plotlycufflinks/">
+        </link>
+        <updated>2020-08-23T03:01:35.000Z</updated>
+        <content type="html"><![CDATA[<p>开坑待填~</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[《尼各马可伦理学》读书笔记（持续施工)]]></title>
+        <id>https://stdasein.life/post/lesslessxin-jiao-lun-li-yu-zi-ben-zhu-yi-jing-shen-greatergreater-du-shu-bi-ji/</id>
+        <link href="https://stdasein.life/post/lesslessxin-jiao-lun-li-yu-zi-ben-zhu-yi-jing-shen-greatergreater-du-shu-bi-ji/">
+        </link>
+        <updated>2020-08-23T02:51:59.000Z</updated>
+        <content type="html"><![CDATA[<p>开坑待填~</p>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[房价预测]]></title>
         <id>https://stdasein.life/post/fang-jie-yu-ce/</id>
         <link href="https://stdasein.life/post/fang-jie-yu-ce/">
         </link>
-        <updated>2020-08-15T07:55:32.000Z</updated>
+        <updated>2020-08-18T07:55:32.000Z</updated>
         <content type="html"><![CDATA[<h1 id="项目背景">项目背景</h1>
 <p>房价预测是kaggle平台上的一个线性回归问题，要求参赛者根据房屋的属性预测房价。</p>
 <h1 id="数据概况">数据概况</h1>
