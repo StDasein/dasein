@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://stdasein.life</id>
     <title>Dasein</title>
-    <updated>2020-08-23T03:13:30.381Z</updated>
+    <updated>2020-08-25T13:21:34.924Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://stdasein.life"/>
     <link rel="self" href="https://stdasein.life/atom.xml"/>
@@ -10,6 +10,15 @@
     <logo>https://stdasein.life/images/avatar.png</logo>
     <icon>https://stdasein.life/favicon.ico</icon>
     <rights>All rights reserved 2020, Dasein</rights>
+    <entry>
+        <title type="html"><![CDATA[Tableau（开坑待填）]]></title>
+        <id>https://stdasein.life/post/tableaukai-keng-dai-tian/</id>
+        <link href="https://stdasein.life/post/tableaukai-keng-dai-tian/">
+        </link>
+        <updated>2020-08-25T13:20:17.000Z</updated>
+        <content type="html"><![CDATA[<p>施工中~</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[交互式图表：plotly+cufflinks（施工中）]]></title>
         <id>https://stdasein.life/post/jiao-hu-shi-tu-biao-plotlycufflinks/</id>
