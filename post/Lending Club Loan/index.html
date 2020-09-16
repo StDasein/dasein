@@ -6,7 +6,7 @@
 
 <title>Lending Club贷款分析及违约预测 | Dasein</title>
 
-<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1600139576391">
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1600216493125">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://stdasein.life/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1600139576391" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1600216493125" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -102,8 +102,7 @@
                     
                 </div>
                 <div class="post-content">
-                    <h2 id="lending-club贷款分析及违约预测">Lending Club贷款分析及违约预测</h2>
-<h3 id="一-项目背景">一、项目背景</h3>
+                    <h3 id="一-项目背景">一、项目背景</h3>
 <p><strong>背景介绍</strong></p>
 <blockquote>
 <p>作为旧金山的一家个人对个人的借贷公司，Lending Club利用网络技术打造交易平台，直接连接了个人投资者和个人借贷者，通过此种方式，缩短了资金流通的细节，尤其是绕过了传统的大银行等金融机构，使得投资者和借贷者都能得到更多实惠、更快捷。对于投资者来说可以获得更好的回报，而对于借贷者来说，则可以获得相对较低的贷款利率。</p>
@@ -116,7 +115,7 @@
 <li>利用机器学习进行违约预测</li>
 </ul>
 <h3 id="三-分析框架">三、分析框架</h3>
-<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1600135592031.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1600135592031.png" alt="" width="500" height="300" loading="lazy"></figure>
 <h3 id="四-前期准备">四、前期准备</h3>
 <p>设置基本环境，导入pandas、numpy等要用到的库</p>
 <pre><code class="language-python">import pandas as pd
@@ -165,7 +164,7 @@ data = pd.read_csv(path)
 </code></pre>
 <h3 id="五-探索性数据分析eda">五、探索性数据分析（EDA)</h3>
 <p>探索性数据分析（EDA)是指<strong>通过作图、制表、计算特征量等手段探索数据的结构和规律的一种数据分析方法</strong>，旨在为后续的流程提供决策辅助，其分析框架如下图所示:</p>
-<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1600135732992.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1600135732992.png" alt="" width="500" height="300" loading="lazy"></figure>
 <h4 id="1概况分析">1.概况分析</h4>
 <p>在这个环节我们的关注点集中在数据集的整体概况上，要求从特征值数量、数据质量、数据类型等方面对数据集进行评估。</p>
 <p>查看数据集的样本数量和每个样本的特征数量：</p>
@@ -215,53 +214,53 @@ cat_feature
 <p>经过初步筛选，我们发现数据集中有113个数值型特征，其余皆为分类型，然而有些特征的类型需要在后续进行调整，例如工作年限em_length可能归为数值型更合适。</p>
 <h4 id="2用户画像">2.用户画像</h4>
 <p><strong>（1）用户基本信息</strong></p>
-<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1600136180233.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1600136180233.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p><strong>地域分布（颜色越深表示该区域客户数量越多）</strong></p>
-<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1600136333092.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1600136333092.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：客户数量最多的前四个州分别是加州(35,048）、德州(22,007)、纽约(21,210)和弗罗里达(19,519)，而爱荷华客户数量最少(0)；此外，沿海地区的客户数量整体上要高于内陆地区。</p>
 <p>提出假设：贷款数量与区域经济发展程度有关。</p>
 <p>验证假设：我们可以将平均年收入和总年收入作为衡量一个州经济发展程度的指标，以此来验证先前提出的假设。</p>
-<figure data-type="image" tabindex="7"><img src="https://stdasein.life/post-images/1600136406450.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="7"><img src="https://stdasein.life/post-images/1600136406450.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>上图中，方块越大代表总收入越高，而颜色越红代表年均收入越高。</p>
 <p>我们可以看见，经济规模前四的州分别是加州、德州、纽约和弗罗里达，正好与贷款数量前四的州一一对应；同时，年均收入较高的州（颜色红）大部分都位于沿海地区。</p>
 <p><strong>收入分布</strong></p>
-<figure data-type="image" tabindex="8"><img src="https://stdasein.life/post-images/1600136477730.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://stdasein.life/post-images/1600136477730.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：客户收入呈现正偏态分布（即平均数大于中位数，中位数大于众数），其中，位于4,0000-6,0000美元收入区间内的客户人数最多。</p>
 <p>提出假设：相较于高收入人群，收入中等偏下的人群有更高的贷款需求，而低收入人群则更难通过贷款审核。</p>
 <p><strong>职业分布</strong></p>
-<figure data-type="image" tabindex="9"><img src="https://stdasein.life/post-images/1600136564750.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://stdasein.life/post-images/1600136564750.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：除了经理(manager)这一职业占比高达14.98%外，前十名的其他职业，例如主管(Supervisor 2.87%)、老师(2.86%)等，占比差距并不大。</p>
 <p>提出假设：以经理为职业的人群收入更高，机构更容易发放贷款。</p>
 <p>验证假设：我们可以尝试加入<strong>年收入中值</strong>维度进行分析（以颜色表示，从深绿到深黄，年收入中值递增）</p>
-<figure data-type="image" tabindex="10"><img src="https://stdasein.life/post-images/1600136641266.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://stdasein.life/post-images/1600136641266.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>结果显示，尽管经理的收入在前十的职业中并不低，但也没有明显的优势，不能简单的认为其数量优势是来自与高收入，因此假设不成立。</p>
 <p>修改假设：经理可能是更具代表性的管理层的一种泛称，客户倾向于使用这样的称呼来代替具体的管理职务。</p>
 <p><strong>工作年限</strong></p>
 <p>根据经验，工作年限越长收入越高，因此我们可以将工作年限与收入进行组合分析来验证这一点。</p>
-<figure data-type="image" tabindex="11"><img src="https://stdasein.life/post-images/1600136744140.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="11"><img src="https://stdasein.life/post-images/1600136744140.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：收入与工作年限成正比（由绿到红）；10年及以上工作年限的客户占比最高（36.08%），说明贷款机构偏好高工作年限的客户，但另一方面，低工作年限（0-3年）的人群占比也接近35%。</p>
 <p>提出假设：<strong>贷款机构可能通过提高利率、降低贷款额来弥补风险（对低工作年限人群）</strong></p>
 <p>验证假设</p>
-<figure data-type="image" tabindex="12"><img src="https://stdasein.life/post-images/1600136823891.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="12"><img src="https://stdasein.life/post-images/1600136823891.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>总的来说，工作年限越高，贷款额度越高，同时，利率也越低（红到灰），假设成立。</p>
 <p><strong>住房情况</strong></p>
-<figure data-type="image" tabindex="13"><img src="https://stdasein.life/post-images/1600136893018.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="14"><img src="https://stdasein.life/post-images/1600137021854.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="13"><img src="https://stdasein.life/post-images/1600136893018.png" alt="" width="400" height="300" loading="lazy"></figure>
+<figure data-type="image" tabindex="14"><img src="https://stdasein.life/post-images/1600137021854.png" alt="" width="200" height="100" loading="lazy"></figure>
 <p>分析发现：约半数的客户有抵押贷款，经济实力较强、拥有自己的房子的客户仅占12.35%，而剩下的将近40%的客户处于租房住的状态。</p>
 <p>提出假设：住房情况与工作年限、收入正相关。</p>
 <p>验证假设：通过仪表板关联图表进行分析</p>
-<figure data-type="image" tabindex="15"><img src="https://stdasein.life/post-images/1600137100977.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="16"><img src="https://stdasein.life/post-images/1600137167889.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="15"><img src="https://stdasein.life/post-images/1600137100977.png" alt="" width="600" height="300" loading="lazy"></figure>
+<figure data-type="image" tabindex="16"><img src="https://stdasein.life/post-images/1600137167889.png" alt="" width="600" height="300" loading="lazy"></figure>
 <p>对比发现，40%拥有住房的客户工作年限在10年以上，而租房客户仅占约26%，假设成立。</p>
 <p><strong>贷款目的</strong></p>
-<figure data-type="image" tabindex="17"><img src="https://stdasein.life/post-images/1600137237767.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="17"><img src="https://stdasein.life/post-images/1600137237767.png" alt="" width="600" height="300" loading="lazy"></figure>
 <p>分析发现：大部分贷款目的（55%债务重组、20%还信用卡，总共75%）是借新债还旧债。</p>
 <p>提出假设：以还债为目的的贷款利率更高。</p>
 <p>验证假设：以利率和贷款目的为坐标轴画散点图<br>
-<img src="https://stdasein.life/post-images/1600137328383.png" alt="" loading="lazy"><br>
+<img src="https://stdasein.life/post-images/1600137328383.png" alt="" width="600" height="300" loading="lazy"><br>
 信用卡、债务重组项的利率并不突出，假设不成立。</p>
 <p><strong>月偿还额收入比</strong></p>
-<figure data-type="image" tabindex="18"><img src="https://stdasein.life/post-images/1600137404488.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="18"><img src="https://stdasein.life/post-images/1600137404488.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>大部分客户的月偿还收入比都在30%以下，其中偿收比在10%-21%的人群占比约为55%，可见，整体上，客户群体的偿债能力还是比较高的。</p>
 <p><strong>（2）客户信用记录</strong></p>
 <ul>
@@ -271,15 +270,15 @@ cat_feature
 <li>违约金额</li>
 </ul>
 <p><strong>借款者过去两年借款逾期超过30天次数</strong></p>
-<figure data-type="image" tabindex="19"><img src="https://stdasein.life/post-images/1600137472539.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="19"><img src="https://stdasein.life/post-images/1600137472539.png" alt="" width="400" height="300" loading="lazy"></figure>
 <p>气泡图显示，81.05%的客户在近两年不存在逾期行为，说明大部分客户还是信用良好的，而在有逾期行为的客户中，逾期1次的占多数（12.6%）。</p>
 <p><strong>距离最近一次逾期的月数&amp;负面记录分析</strong></p>
-<figure data-type="image" tabindex="20"><img src="https://stdasein.life/post-images/1600137546639.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="21"><img src="https://stdasein.life/post-images/1600137610640.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="20"><img src="https://stdasein.life/post-images/1600137546639.png" alt="" width="400" height="300" loading="lazy"></figure>
+<figure data-type="image" tabindex="21"><img src="https://stdasein.life/post-images/1600137610640.png" alt="" width="400" height="300" loading="lazy"></figure>
 <p>分析发现：如果把时间维度拉长，曾有逾期行为的客户数量将增至接近总数的一半（130,026），但是，机构对客户的负面记录基本与近两年逾期情况的分布一致，这可能说明在很大程度上，机构只考虑前两年的信用状况。</p>
 <p><strong>违约金额分布</strong></p>
-<figure data-type="image" tabindex="22"><img src="https://stdasein.life/post-images/1600137685878.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="23"><img src="https://stdasein.life/post-images/1600137758612.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="22"><img src="https://stdasein.life/post-images/1600137685878.png" alt="" width="550" height="300" loading="lazy"></figure>
+<figure data-type="image" tabindex="23"><img src="https://stdasein.life/post-images/1600137758612.png" alt="" width="100" height="200" loading="lazy"></figure>
 <p>分析发现：从整体上来说，逾期次数与逾期金额成反比，逾期金额主要分布在1100美元以下的区间内，其中0—200美元区间内的逾期次数最多。逾期的贷款多是用于借新债还旧债，与贷款目的分布一致。</p>
 <p><strong>（3）产品数据</strong></p>
 <ul>
@@ -290,17 +289,17 @@ cat_feature
 <li>贷款状态</li>
 </ul>
 <p><strong>信用等级、贷款额度与利率（不同的形状代表不同的信用等级，颜色代表频率）</strong></p>
-<figure data-type="image" tabindex="24"><img src="https://stdasein.life/post-images/1600137829120.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="24"><img src="https://stdasein.life/post-images/1600137829120.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：</p>
 <ul>
 <li>利率与信用等级成反比，信用等级越低则利率越高，其中A级信用的利率均值仅为7.03%，而G级却高达30.35%;</li>
 <li>B级和C级发放贷款的总量最高，G级最低。</li>
 </ul>
 <p><strong>贷款额度、利率与期限（颜色代表贷款额度）</strong></p>
-<figure data-type="image" tabindex="25"><img src="https://stdasein.life/post-images/1600137893038.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="25"><img src="https://stdasein.life/post-images/1600137893038.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>分析发现：机构偏向发放低期限的贷款，尽管高期限的贷款利率更高，可能是出于规避风险的需要。</p>
 <p><strong>贷款状态</strong></p>
-<figure data-type="image" tabindex="26"><img src="https://stdasein.life/post-images/1600137971630.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="26"><img src="https://stdasein.life/post-images/1600137971630.png" alt="" width="400" height="250" loading="lazy"></figure>
 <p>分析发现:</p>
 <ul>
 <li>有53.19%的贷款还在进行中，无法判断最终是否形成坏账</li>
@@ -309,9 +308,9 @@ cat_feature
 <li>有1.62%的客户存在逾期（30-120天）</li>
 </ul>
 <h3 id="六-数据预处理">六、数据预处理</h3>
-<figure data-type="image" tabindex="27"><img src="https://stdasein.life/post-images/1600138044677.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="27"><img src="https://stdasein.life/post-images/1600138044677.png" alt="" width="500" height="300" loading="lazy"></figure>
 <h4 id="1处理缺失值">1.处理缺失值</h4>
-<figure data-type="image" tabindex="28"><img src="https://stdasein.life/post-images/1600138099943.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="28"><img src="https://stdasein.life/post-images/1600138099943.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>处理缺失值主要有5种方法：</p>
 <ul>
 <li>删除含有缺失值的特征：适用于缺失值过多的特征</li>
@@ -331,7 +330,7 @@ def CountNull(data):
 
 CountNull(data)
 </code></pre>
-<figure data-type="image" tabindex="29"><img src="https://stdasein.life/post-images/1600138239863.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="29"><img src="https://stdasein.life/post-images/1600138239863.png" alt="" width="400" height="300" loading="lazy"></figure>
 <p><strong>（2）使用dropna删除含缺失值的特征</strong></p>
 <p>通过查看缺失值的分布，我们发现部分特征的缺失情况很严重，有的缺失比例甚至能够达到99%以上，这样的特征对预测没有实际的意义，可以考虑设置阈值（例如缺失比达到50%），并用dropna删除达到阈值的特征。</p>
 <pre><code class="language-python">#用dropna删去缺失值比例大于50%的特征
@@ -344,7 +343,7 @@ data = data.dropna(thresh = half_count, axis = 1 )
 </code></pre>
 <pre><code class="language-python">CountNull(data)
 </code></pre>
-<figure data-type="image" tabindex="30"><img src="https://stdasein.life/post-images/1600138406848.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="30"><img src="https://stdasein.life/post-images/1600138406848.png" alt="" width="400" height="300" loading="lazy"></figure>
 <p>经过筛选，特征重由原来的151个变为108个。</p>
 <p><strong>（3）填充缺失值</strong></p>
 <p><strong>填充数值型特征的缺失值</strong></p>
@@ -401,7 +400,7 @@ cat_names
 data.isnull().sum()
 </code></pre>
 <h4 id="2处理异常值">2.处理异常值</h4>
-<figure data-type="image" tabindex="31"><img src="https://stdasein.life/post-images/1600138468584.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="31"><img src="https://stdasein.life/post-images/1600138468584.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p><strong>（1）简单统计</strong></p>
 <pre><code class="language-python">des = data.describe()
 des.sort_values(by = 'std',ascending = False,axis = 1)
@@ -412,7 +411,7 @@ des.sort_values(by = 'std',ascending = False,axis = 1)
 <pre><code class="language-python">import seaborn as sns
 sns.scatterplot(x = 'tot_hi_cred_lim', y = 'annual_inc', data = data)
 </code></pre>
-<p><img src="https://stdasein.life/post-images/1600138604084.png" alt="" loading="lazy"><br>
+<p><img src="https://stdasein.life/post-images/1600138604084.png" alt="" width="500" height="300" loading="lazy"><br>
 一般来说，信用额度与收入成正比，但右下角的点显然不符合这一规律，我们可以将其视为异常点进行删除</p>
 <pre><code class="language-python">data[data['tot_hi_cred_lim'] &gt; 5000000]
 </code></pre>
@@ -475,7 +474,7 @@ data_iso.drop(drop_features,axis=1,inplace = True)
 <blockquote>
 <p>什么是特征工程呢？一个非常简单的例子，现在出一非常简答的二分类问题题，请你使用逻辑回归，设计一个身材分类器。输入数据X:身高和体重 ，标签为Y:身材等级（胖，不胖）。显然，不能单纯的根据体重来判断一个人胖不胖，姚明很重，他胖吗？显然不是。针对这个问题，一个非常经典的特征工程是，**BMI指数，BMI=体重/(身高^2)。这样，通过BMI指数，**就能非常显然地帮助我们，刻画一个人身材如何。<strong>甚至，你可以抛弃原始的体重和身高数据。所以说，特征工程就是</strong>通过X，创造新的X'。<strong>基本的操作包括:衍生（升维），筛选（降维）</strong></p>
 </blockquote>
-<figure data-type="image" tabindex="35"><img src="https://stdasein.life/post-images/1600138783381.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="35"><img src="https://stdasein.life/post-images/1600138783381.png" alt="" width="500" height="300" loading="lazy"></figure>
 <h4 id="1特征衍生">1.特征衍生</h4>
 <p>特征衍生就是通过现有特征来构建新特征，以提升机器学习的准确度。</p>
 <p>根据原有特征，我们可以尝试构建以下新特征：</p>
@@ -502,7 +501,7 @@ data_iso['total_ratio'] =  data_iso['total_bal_ex_mort']/ data_iso['tot_hi_cred_
 data_iso['num_accounts'] = data_iso['mort_acc'] + data_iso['num_il_tl'] + data_iso['num_rev_accts']
 </code></pre>
 <h4 id="2特征规整">2.特征规整</h4>
-<figure data-type="image" tabindex="36"><img src="https://stdasein.life/post-images/1600138826745.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="36"><img src="https://stdasein.life/post-images/1600138826745.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p><strong>（1）数值型特征规整</strong></p>
 <p><strong>特征缩放</strong></p>
 <blockquote>
@@ -583,7 +582,7 @@ data_iso.head()
 <blockquote>
 <p>通过特征选择减少特征具有重要的现实意义，不仅减少过拟合、减少特征数量（降维）、提高模型泛化能力，而且还可以使模型获得更好的解释性，增强对特征和特征值之间的理解，加快模型的训练速度，一般的，还会获得更好的性能。</p>
 </blockquote>
-<figure data-type="image" tabindex="40"><img src="https://stdasein.life/post-images/1600139052155.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="40"><img src="https://stdasein.life/post-images/1600139052155.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>特征选择的方法主要有三种：过滤法、嵌入法、包装法</p>
 <ul>
 <li>过滤法：完全独立于任何机器学习算法。它是根据各种<strong>统计检验中的分数以及相关性的各项指标</strong>来选择特征，适合在<strong>数据量很大</strong>的时候使用。</li>
@@ -614,7 +613,7 @@ for i in threshold:
 plt.plot(threshold,score)
 plt.show()
 </code></pre>
-<figure data-type="image" tabindex="41"><img src="https://stdasein.life/post-images/1600139113112.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="41"><img src="https://stdasein.life/post-images/1600139113112.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>学习曲线显示，当阈值在0-0.02附近时，模型的评分最高，我们可以进一步细化学习曲线找到具体的值：</p>
 <pre><code class="language-python">#细化学习曲线
 score2 = []
@@ -627,7 +626,7 @@ plt.plot(np.linspace(0,0.02,20),score2)
 plt.xticks(np.linspace(0,0.02,20))
 plt.show()
 </code></pre>
-<figure data-type="image" tabindex="42"><img src="https://stdasein.life/post-images/1600139155961.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="42"><img src="https://stdasein.life/post-images/1600139155961.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>可见，当阈值约为0.0043时，模型评分最高。</p>
 <p><strong>特征选择</strong></p>
 <pre><code class="language-python">sfm = SelectFromModel(RFC_,threshold=0.0043)
@@ -656,7 +655,7 @@ plt.xticks(range(X.shape[1]), names[indices],rotation='vertical',fontsize=14)
 plt.xlim([-1, X.shape[1]])
 plt.show()
 </code></pre>
-<figure data-type="image" tabindex="43"><img src="https://stdasein.life/post-images/1600139217762.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="43"><img src="https://stdasein.life/post-images/1600139217762.png" alt="" width="500" height="300" loading="lazy"></figure>
 <p>按重要性排序前5的特征分别是：</p>
 <ul>
 <li>
@@ -684,7 +683,7 @@ plt.figure(figsize=(15,15))
 plt.title('Pearson Correlation', y=1.05, size=15)
 sns.heatmap(corr,linewidths=0.1,vmax=1.0, square=True, cmap=colormap, linecolor='white', annot=True)
 </code></pre>
-<figure data-type="image" tabindex="44"><img src="https://stdasein.life/post-images/1600139260602.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="44"><img src="https://stdasein.life/post-images/1600139260602.png" alt="" width="600" height="600" loading="lazy"></figure>
 <p>删除相关性在0.85以上的部分特征：</p>
 <ul>
 <li>loan_amnt：funded_amnt、funded_amnt_inv、installment</li>
@@ -711,7 +710,7 @@ X.shape
       dtype='object')
 </code></pre>
 <h3 id="八-模型训练">八、模型训练</h3>
-<figure data-type="image" tabindex="45"><img src="https://stdasein.life/post-images/1600139294054.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="45"><img src="https://stdasein.life/post-images/1600139294054.png" alt="" width="400" height="300" loading="lazy"></figure>
 <h4 id="1处理样本不均衡">1.处理样本不均衡</h4>
 <blockquote>
 <p>周志华《机器学习》中介绍到，分类学习方法都有一个共同的基本假设，即<strong>不同类别的训练样例数目相当</strong>。如果不同类别的训练样例数目稍有差别，对学习结果的影响通常也不大，但若样本类别数目差别很大，属于极端不均衡，则会对学习过程（模型训练）造成困扰。这些学习算法的设计背后隐含的优化目标是数据集上的分类准确度，而这会导致学习算法在不平衡数据上更偏向于含更多样本的多数类。</p>
