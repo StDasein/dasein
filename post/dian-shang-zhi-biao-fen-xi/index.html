@@ -4,9 +4,9 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>电商指标分析 | Dasein</title>
+<title>用户复购行为预测 | Dasein</title>
 
-<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1600216493125">
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1600910508276">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://stdasein.life/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1600216493125" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1600910508276" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -89,7 +89,7 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    电商指标分析
+                    用户复购行为预测
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
@@ -108,7 +108,8 @@
 三、分析思路<br>
 四、数据清理<br>
 五、数据分析<br>
-六、增长建议</p>
+六、增长建议<br>
+七、机器学习</p>
 <h1 id="一-数据概况">一、数据概况</h1>
 <p>数据来源：<br>
 <a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=47&amp;lang=zh-cn">阿里天池</a></p>
@@ -1070,6 +1071,454 @@ ration_merge.applymap(lambda x: format(x,'.2%'))
 <ul>
 <li>针对用户的不同属性进行分层管理；</li>
 </ul>
+<h1 id="七-机器学习">七、机器学习</h1>
+<pre><code>import os
+import pickle
+import warnings
+warnings.filterwarnings('ignore')
+</code></pre>
+<h2 id="数据压缩">数据压缩</h2>
+<pre><code>def compressData(inputData):
+    for eachType in set(inputData.dtypes.values):
+    #检查属于什么类型
+        if 'int' in str(eachType):
+        #对每列进行转换
+            for i in inputData.select_dtypes(eachType).columns.values:
+                if inputData[i].min() &lt; 0:
+                    inputData[i] = pd.to_numeric(inputData[i],downcast='signed')
+                else:
+                    inputData[i] = pd.to_numeric(inputData[i],downcast='unsigned')      
+        elif 'float' in str(eachType):
+            for i in inputData.select_dtypes(eachType).columns.values:   
+                inputData[i] = pd.to_numeric(inputData[i],downcast='float')
+        elif 'object' in str(eachType):
+            for i in inputData.select_dtypes(eachType).columns.values: 
+                inputData[i] = trainData7[i].astype('category')
+        return inputData
+
+userInfo = pd.read_csv('user_log_format1.csv')
+print('Before compressed:\n',userInfo.info())
+userInfo = compressData(userInfo)
+print('After compressed:\n',userInfo.info())
+
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 54925330 entries, 0 to 54925329
+Data columns (total 7 columns):
+#   Column       Dtype  
+---  ------       -----  
+0   user_id      int64  
+1   item_id      int64  
+2   cat_id       int64  
+3   seller_id    int64  
+4   brand_id     float64
+5   time_stamp   int64  
+6   action_type  int64  
+dtypes: float64(1), int64(6)
+memory usage: 2.9 GB
+Before compressed:
+None
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 54925330 entries, 0 to 54925329
+Data columns (total 7 columns):
+#   Column       Dtype  
+---  ------       -----  
+0   user_id      uint32 
+1   item_id      uint32 
+2   cat_id       uint16 
+3   seller_id    uint16 
+4   brand_id     float64
+5   time_stamp   uint16 
+6   action_type  uint8  
+dtypes: float64(1), uint16(3), uint32(2), uint8(1)
+memory usage: 1.2 GB
+After compressed:
+None
+
+#将压缩成功的数据类型dtypes进行输出成列表，便于往后的读入
+dtypes_type = [i.name for i in userInfo.dtypes.values]
+column_types = dict(zip(userInfo.columns, dtypes_type))
+column_types
+#例如以下的read_csv的读入
+userInfo = pd.read_csv('user_log_format1.csv',dtype=column_types)
+</code></pre>
+<h2 id="数据清理">数据清理</h2>
+<pre><code>def get_Logs():
+    &quot;&quot;&quot;
+    :parameters: None: None
+    :return: userLog: pd.Dataframe
+    :Purpose: 
+    方便与其他函数调取原始的行为数据，同时已对缺失省进行调整
+    使用pickle模块进行序列化，加快速度读写
+    &quot;&quot;&quot;
+    filePath = 'Logs.pkl'
+    if os.path.exists(filePath):
+        userLog = pickle.load(open(filePath,'rb'))
+    else:
+        userLog = pd.read_csv('user_log_format1.csv',dtype=column_types)
+        print('Is null? ',userLog.isnull().any())
+
+        ## 对brand_id缺失值进行处理
+        missingIndex = userLog[userLog.brand_id.isnull()].index
+        ## 思路：找到所有商店所拥有brand_id的众数，并对所缺失的brand_id与其相对应的商店进行填充
+        sellerMode = userLog.groupby(['seller_id']).apply(lambda x:x.brand_id.mode()[0]).reset_index()
+        pickUP = userLog.loc[missingIndex]
+        pickUP = pd.merge(pickUP,sellerMode,how='left',on=['seller_id'])[0].astype('float32')
+        pickUP.index = missingIndex
+        userLog.loc[missingIndex,'brand_id'] = pickUP
+        del pickUP,sellerMode,missingIndex
+        print('--------------------')
+        print('Is null? ',userLog.isnull().any())
+        pickle.dump(userLog,open(filePath,'wb'))
+    return userLog
+</code></pre>
+<h2 id="特征提取">特征提取</h2>
+<p>提取基于用户的特征</p>
+<pre><code>from sklearn.preprocessing import MinMaxScaler
+
+def get_userInfo_feat():
+    filePath = 'userInfo_Features.pkl'
+    if os.path.exists(filePath):
+        userInfo = pickle.load(open(filePath,'rb'))
+    else:
+        # 统计提取原始用户信息数据,并对age和gender的缺失值做处理，同时做离散化操作...
+        ### --------------------------------------------------------------------------
+        userInfo = pd.read_csv('user_info_format1.csv')
+        userInfo.age_range.fillna(userInfo.age_range.median(),inplace=True)
+        userInfo.gender.fillna(userInfo.gender.mode()[0],inplace=True)
+        print('Check any missing value?\n',userInfo.isnull().any())
+        df_age = pd.get_dummies(userInfo.age_range,prefix='age')
+        df_sex = pd.get_dummies(userInfo.gender)
+        df_sex.rename(columns={0:'female',1:'male',2:'unknown'},inplace=True)
+        userInfo = pd.concat([userInfo.user_id, df_age, df_sex], axis=1)
+        del df_age,df_sex
+
+        ## 统计点击，加入购物车，购买，收藏的总次数
+        ## 统计点击购买转化率，加入购物车购买转化率，被收藏次数购买转化率
+        ### --------------------------------------------------------------------------
+        logs = get_Logs()
+        # 提取全部的原始行为数据...
+        print('--&gt;Getting user logs&lt;-- is finished...')
+        totalActions = logs[[&quot;user_id&quot;,&quot;action_type&quot;]]
+        df = pd.get_dummies(totalActions['action_type'],prefix='userTotalAction')
+        totalActions = pd.concat([totalActions, df], axis=1).groupby(['user_id'], as_index=False).sum()
+        del df
+        totalActions.drop(&quot;action_type&quot;, axis=1,inplace=True)
+
+        totalActions['userTotalAction_0_ratio'] = np.log1p(totalActions['userTotalAction_2']) - np.log1p(totalActions['userTotalAction_0'])
+        totalActions['userTotalAction_1_ratio'] = np.log1p(totalActions['userTotalAction_2']) - np.log1p(totalActions['userTotalAction_1'])
+        totalActions['userTotalAction_3_ratio'] = np.log1p(totalActions['userTotalAction_2']) - np.log1p(totalActions['userTotalAction_3'])
+        print('--&gt;Counting total numbers of clicking,addCart,buying,favor in various Users&lt;-- are finished...')  
+        ## 将统计好的数量和转化率进行拼接
+        userInfo = pd.merge(userInfo,totalActions,how='left',on=['user_id'])
+        del totalActions
+        
+        mms = MinMaxScaler()
+
+        typeCounts = logs[[&quot;user_id&quot;,&quot;seller_id&quot;,&quot;cat_id&quot;,&quot;item_id&quot;,&quot;brand_id&quot;,&quot;time_stamp&quot;]]
+        ## 用户六个月中做出行为的种类数量
+        typeCount_result = typeCounts.groupby(['user_id'])['cat_id'].nunique()
+        ### 用户六个月中做出行为的品牌数量
+        typeCount_result = pd.concat([typeCount_result,typeCounts.groupby(['user_id'])['brand_id'].nunique()],axis=1)
+        ### 用户六个月中做出行为的天数
+        typeCount_result = pd.concat([typeCount_result,typeCounts.groupby(['user_id'])['time_stamp'].nunique()],axis=1)
+        typeCount_result.rename(columns={'cat_id':'cat_counts','brand_id':'brand_counts','time_stamp':'active_days'},inplace=True)
+        typeCount_result.reset_index(inplace=True)
+        typeCount_result['cat_counts'] = mms.fit_transform(typeCount_result[['cat_counts']])
+        typeCount_result['brand_counts'] = mms.fit_transform(typeCount_result[['brand_counts']])
+        typeCount_result['active_days'] = mms.fit_transform(typeCount_result[['active_days']])
+        print('--&gt;Counting total numbers of items, cat, brand and action_days in various Users&lt;-- are finished...')
+        ## 将统计好的数量
+        userInfo = pd.merge(userInfo,typeCount_result,how='left',on=['user_id'])
+        del typeCount_result,typeCounts
+        
+        ## 统计双十一之前，重复购买过的商家数量
+        ### --------------------------------------------------------------------------
+        repeatSellerCount = logs[[&quot;user_id&quot;,&quot;seller_id&quot;,&quot;time_stamp&quot;,&quot;action_type&quot;]]
+        repeatSellerCount = repeatSellerCount[(repeatSellerCount.action_type == 2) &amp; (repeatSellerCount.time_stamp &lt; 1111)]
+        repeatSellerCount.drop_duplicates(inplace=True)
+        repeatSellerCount = repeatSellerCount.groupby(['user_id','seller_id'])['time_stamp'].count().reset_index()
+        repeatSellerCount = repeatSellerCount[repeatSellerCount.time_stamp &gt; 1]
+        repeatSellerCount = repeatSellerCount.groupby(['user_id'])['seller_id'].count().reset_index()
+        repeatSellerCount.rename(columns={'seller_id':'repeat_seller_count'},inplace=True)
+        repeatSellerCount['repeat_seller_count'] = mms.fit_transform(repeatSellerCount[['repeat_seller_count']])
+        print('--&gt;Counting seller number of repeat buying in various Users&lt;-- are finished...')
+        userInfo = pd.merge(userInfo,repeatSellerCount,how='left',on=['user_id'])
+        userInfo.repeat_seller_count.fillna(0,inplace=True)
+        del repeatSellerCount,logs
+        
+        logs = get_Logs()
+
+        ## 用户除了目标商家外，对其他重复回购商店的点击，加入购物车，购买，收藏的平均值
+        trainData = pd.read_csv('train_format1.csv')
+        trainData.rename(columns={'merchant_id':'seller_id'},inplace=True)
+        testData = pd.read_csv('test_format1.csv')
+        testData.rename(columns={'merchant_id':'seller_id'},inplace=True)
+        targetIndex = pd.concat([trainData[['user_id', 'seller_id']],testData[['user_id', 'seller_id']]],ignore_index=True)
+        removeLogs = pd.merge(targetIndex,logs,on=['user_id', 'seller_id'])
+        del trainData,testData,targetIndex
+        logs.drop(removeLogs.index,inplace=True)
+
+        ## 每个用户（除去目标用户对目标商家的记录）对不同商家的行为总数
+        actionsRate = logs[[&quot;user_id&quot;,&quot;seller_id&quot;,&quot;action_type&quot;]]
+        df = pd.get_dummies(actionsRate['action_type'],prefix='repeat_actionRate')
+        actionsRate = pd.concat([actionsRate, df], axis=1).groupby(['user_id','seller_id'], as_index=False).sum()
+        del df
+        actionsRate.drop(&quot;action_type&quot;, axis=1,inplace=True)
+        
+        ## 找出每个用户对回购商家的行为总数
+        repeat = logs[[&quot;user_id&quot;,&quot;seller_id&quot;,&quot;time_stamp&quot;,&quot;action_type&quot;]]
+        repeat = repeat[(repeat.action_type == 2) &amp; (repeat.time_stamp &lt; 1111)]
+        repeat.drop_duplicates(inplace=True)
+        repeat = repeat.groupby(['user_id','seller_id'])['time_stamp'].count().reset_index()
+        repeat = repeat[repeat.time_stamp &gt; 1]
+        actionsRate = pd.merge(actionsRate,repeat,on=['user_id','seller_id'])
+        actionsRate.drop(&quot;time_stamp&quot;, axis=1,inplace=True)
+        del repeat
+        actionsRate = actionsRate.groupby(['user_id'])[['repeat_actionRate_0','repeat_actionRate_1','repeat_actionRate_2','repeat_actionRate_3']].mean().reset_index()
+        actionsRate['repeat_actionRate_0'] = mms.fit_transform(actionsRate[['repeat_actionRate_0']])
+        actionsRate['repeat_actionRate_1'] = mms.fit_transform(actionsRate[['repeat_actionRate_1']])
+        actionsRate['repeat_actionRate_2'] = mms.fit_transform(actionsRate[['repeat_actionRate_2']])
+        actionsRate['repeat_actionRate_3'] = mms.fit_transform(actionsRate[['repeat_actionRate_3']])
+        userInfo = pd.merge(userInfo,actionsRate,how='left',on=['user_id'])
+        userInfo.repeat_actionRate_0.fillna(0,inplace=True)
+        userInfo.repeat_actionRate_1.fillna(0,inplace=True)
+        userInfo.repeat_actionRate_2.fillna(0,inplace=True)
+        userInfo.repeat_actionRate_3.fillna(0,inplace=True)
+        del actionsRate
+        
+        ## 统计每月的点击次数，每月的加入购物次数，每月的购买次数，每月的收藏次数
+        ### --------------------------------------------------------------------------
+        monthActionsCount = logs[[&quot;user_id&quot;,&quot;time_stamp&quot;,&quot;action_type&quot;]]
+        result = list()
+        for i in range(5,12):
+            start = int(str(i)+'00')
+            end = int(str(i)+'30')
+            example = monthActionsCount[(monthActionsCount.time_stamp &gt;= start) &amp; (monthActionsCount.time_stamp &lt; end)]
+            df = pd.get_dummies(example['action_type'],prefix='%d_Action'%i)
+            example.loc[:,'time_stamp'] = example.time_stamp.apply(lambda x: int(str(x)[0]) if len(str(x)) == 3 else int(str(x)[:2]))
+            result.append(pd.concat([example, df], axis=1).groupby(['user_id','time_stamp'],as_index=False).sum())
+
+        for i in range(0,7):
+            userInfo = pd.merge(userInfo,result[i],how='left',on=['user_id'])
+            userInfo.fillna(0,inplace=True)
+            
+        pickle.dump(userInfo, open(filePath, 'wb'))
+    return userInfo
+</code></pre>
+<p>提取基于卖家的特征</p>
+<pre><code>def get_sellerInfo_feat():
+    filePath = 'sellerInfo_Features.pkl'
+    if os.path.exists(filePath):
+        sellers = pickle.load(open(filePath,'rb'))
+    else:
+        # 提取全部的原始行为数据...
+        logs = get_Logs()
+        print('--&gt;Getting user logs&lt;-- is finished...')
+
+        ## 统计每个商户的商品，种类，品牌总数，并放入dataFrame[seller_id,xx_number]为列名，便于往后的拼接
+        itemNumber = logs.groupby(['seller_id'])['item_id'].nunique().reset_index()
+        catNumber = logs.groupby(['seller_id'])['cat_id'].nunique().reset_index()
+        brandNumber = logs.groupby(['seller_id'])['brand_id'].nunique().reset_index()
+        itemNumber.rename(columns={'item_id':'item_number'},inplace=True)
+        catNumber.rename(columns={'cat_id':'cat_number'},inplace=True)
+        brandNumber.rename(columns={'brand_id':'brand_number'},inplace=True)
+        print('--&gt;Counting numbers of product, category, brand in various sellers&lt;-- are finished...')
+        
+        ## 统计商户重复买家总数量
+        repeatPeoCount = logs[(logs.time_stamp &lt; 1111) &amp; (logs.action_type == 2)]
+        repeatPeoCount = repeatPeoCount.groupby(['seller_id'])['user_id'].value_counts().to_frame()
+        repeatPeoCount.rename(columns={'user_id':'Buy_Number'},inplace=True)
+        repeatPeoCount.reset_index(inplace=True)
+        repeatPeoCount = repeatPeoCount[repeatPeoCount.Buy_Number &gt; 1]
+        repeatPeoCount = repeatPeoCount.groupby(['seller_id']).apply(lambda x:len(x.user_id)).reset_index()
+        repeatPeoCount = pd.merge(pd.DataFrame({'seller_id':range(1, 4996 ,1)}),repeatPeoCount,how='left',on=['seller_id']).fillna(0)
+        repeatPeoCount.rename(columns={0:'repeatBuy_peopleNumber'},inplace=True)
+        print('--&gt;Counting numbers of repeat buying buyers in various sellers&lt;-- are finished...')
+        
+        ##统计被点击，被加入购物车，被购买，被收藏次数
+        ###统计被点击购买转化率，被加入购物车购买转化率，被收藏次数购买转化率
+        sellers = logs[[&quot;seller_id&quot;,&quot;action_type&quot;]]
+        df = pd.get_dummies(sellers['action_type'],prefix='seller')
+        sellers = pd.concat([sellers, df], axis=1).groupby(['seller_id'], as_index=False).sum()
+        sellers.drop(&quot;action_type&quot;, axis=1,inplace=True)
+        #　构造转化率字段
+        sellers['seller_0_ratio'] = np.log1p(sellers['seller_2']) - np.log1p(sellers['seller_0'])
+        sellers['seller_1_ratio'] = np.log1p(sellers['seller_2']) - np.log1p(sellers['seller_1'])
+        sellers['seller_3_ratio'] = np.log1p(sellers['seller_2']) - np.log1p(sellers['seller_3'])
+        print('--&gt;Counting numbers of clicking, addCart, buying,subcribes in various sellers&lt;-- are finished...')
+
+        ###统计每个商户被点击的人数，被加入购物车的人数，被购买的人数，被收藏的人数
+        peoCount = logs[[&quot;user_id&quot;,&quot;seller_id&quot;,&quot;action_type&quot;]]
+        df = pd.get_dummies(peoCount['action_type'],prefix='seller_peopleNumber')
+        peoCount = pd.concat([peoCount, df], axis=1)
+        peoCount.drop(&quot;action_type&quot;, axis=1,inplace=True)
+        peoCount.drop_duplicates(inplace=True)
+        df1 = peoCount.groupby(['seller_id']).apply(lambda x:x.seller_peopleNumber_0.sum())
+        df2 = peoCount.groupby(['seller_id']).apply(lambda x:x.seller_peopleNumber_1.sum())
+        df3 = peoCount.groupby(['seller_id']).apply(lambda x:x.seller_peopleNumber_2.sum())
+        df4 = peoCount.groupby(['seller_id']).apply(lambda x:x.seller_peopleNumber_3.sum())
+        peoCount = pd.concat([df1, df2,df3, df4], axis=1).reset_index()
+        peoCount.rename(columns={0:'seller_peopleNum_0',1:'seller_peopleNum_1',2:'seller_peopleNum_2',3:'seller_peopleNum_3'},inplace=True)
+        print('--&gt;Counting numbers of product, category, brand in various sellers&lt;-- are finished...')
+        
+        ###对各种统计表根据seller_id进行拼接
+        sellers = pd.merge(sellers,peoCount,on=['seller_id'])
+        sellers = pd.merge(sellers,itemNumber,on=['seller_id'])
+        sellers = pd.merge(sellers,catNumber,on=['seller_id'])
+        sellers = pd.merge(sellers,brandNumber,on=['seller_id'])
+        sellers = pd.merge(sellers,repeatPeoCount,on=['seller_id'])
+
+        ###对计数型的特征进行最小大化
+        mms = MinMaxScaler()
+        sellers['seller_0'] = mms.fit_transform(sellers[['seller_0']])
+        sellers['seller_1'] = mms.fit_transform(sellers[['seller_1']])
+        sellers['seller_2'] = mms.fit_transform(sellers[['seller_2']])
+        sellers['seller_3'] = mms.fit_transform(sellers[['seller_3']])
+        sellers['seller_peopleNum_0'] = mms.fit_transform(sellers[['seller_peopleNum_0']])
+        sellers['seller_peopleNum_1'] = mms.fit_transform(sellers[['seller_peopleNum_1']])
+        sellers['seller_peopleNum_2'] = mms.fit_transform(sellers[['seller_peopleNum_2']])
+        sellers['seller_peopleNum_3'] = mms.fit_transform(sellers[['seller_peopleNum_3']])
+        sellers['item_number'] = mms.fit_transform(sellers[['item_number']])
+        sellers['cat_number'] = mms.fit_transform(sellers[['cat_number']])
+        sellers['brand_number'] = mms.fit_transform(sellers[['brand_number']])
+        sellers['repeatBuy_peopleNumber'] = mms.fit_transform(sellers[['repeatBuy_peopleNumber']])
+
+        del df1,df2,df3,df4,itemNumber,catNumber,brandNumber,df,logs,mms,peoCount,repeatPeoCount
+        pickle.dump(sellers,open(filePath,'wb'))
+    return sellers
+</code></pre>
+<p>提取用户—卖家间的特征</p>
+<pre><code>def get_userSellerActions_feat():
+    filePath = 'userSellerActions.pkl'
+    if os.path.exists(filePath):
+        df_result = pickle.load(open(filePath,'rb'))
+    else:
+        ## 提取预测目标的行为数据
+        logs = get_Logs()
+        print('--&gt;Getting user logs&lt;-- is finished...')
+        trainData = pd.read_csv('train_format1.csv')
+        trainData.rename(columns={'merchant_id':'seller_id'},inplace=True)
+        testData = pd.read_csv('test_format1.csv')
+        testData.rename(columns={'merchant_id':'seller_id'},inplace=True)
+        targetIndex = pd.concat([trainData[['user_id', 'seller_id']],testData[['user_id', 'seller_id']]],ignore_index=True)
+        logs = pd.merge(targetIndex,logs,on=['user_id', 'seller_id'])
+        del trainData,testData,targetIndex
+        
+        ### 统计用户对预测的商店的行为特征，例如点击，加入购物车，购买，收藏的总次数,以及各种转化率
+        df_result = logs[[&quot;user_id&quot;, &quot;seller_id&quot;,&quot;action_type&quot;]]
+        df = pd.get_dummies(df_result['action_type'],prefix='userSellerAction')
+        df_result = pd.concat([df_result, df], axis=1).groupby(['user_id', 'seller_id'], as_index=False).sum()
+        del df
+        df_result.drop(&quot;action_type&quot;, axis=1,inplace=True)
+        df_result['userSellerAction_0_ratio'] = np.log1p(df_result['userSellerAction_2']) - np.log1p(df_result['userSellerAction_0'])
+        df_result['userSellerAction_1_ratio'] = np.log1p(df_result['userSellerAction_2']) - np.log1p(df_result['userSellerAction_1'])
+        df_result['userSellerAction_3_ratio'] = np.log1p(df_result['userSellerAction_2']) - np.log1p(df_result['userSellerAction_3'])
+        
+        ###统计用户对预测商店，所点击的总天数
+        clickDays = logs[logs.action_type == 0]
+        clickDays = clickDays[[&quot;user_id&quot;, &quot;seller_id&quot;,&quot;time_stamp&quot;,&quot;action_type&quot;]]
+        clickDays = clickDays.groupby(['user_id', 'seller_id']).apply(lambda x:x.time_stamp.nunique()).reset_index()
+        clickDays.rename(columns={0:'click_days'},inplace=True)
+        df_result = pd.merge(df_result,clickDays,how='left',on=['user_id', 'seller_id'])
+        df_result.click_days.fillna(0,inplace=True)
+        del clickDays
+        
+        ### 购买商品种类数量，点击商品种类数量        
+        catTypeCount = logs[[&quot;user_id&quot;, &quot;seller_id&quot;,&quot;cat_id&quot;,&quot;action_type&quot;]]
+        catTypeCount = catTypeCount[(catTypeCount.action_type == 0) | (catTypeCount.action_type == 2)]
+        cat_result = catTypeCount[catTypeCount.action_type == 2].groupby(['user_id', 'seller_id']).apply(lambda x:x.cat_id.nunique()).reset_index()
+        cat_result.rename(columns={0:'buy_catType_count'},inplace=True)
+        cat_result = pd.merge(cat_result,catTypeCount[catTypeCount.action_type == 0].groupby(['user_id', 'seller_id']).apply(lambda x:x.cat_id.nunique()).reset_index(),how='left',on=['user_id', 'seller_id'])
+        cat_result.rename(columns={0:'click_catType_count'},inplace=True)
+        cat_result.click_catType_count.fillna(0,inplace=True)
+        df_result = pd.merge(df_result,cat_result,how='left',on=['user_id', 'seller_id'])
+        del catTypeCount,cat_result
+        
+        pickle.dump(df_result,open(filePath,'wb'))
+    return df_result
+</code></pre>
+<h2 id="构建模型">构建模型</h2>
+<p>准备训练集</p>
+<pre><code>def make_train_set():
+    filePath = 'trainSetWithFeatures.pkl'
+    if os.path.exists(filePath):
+        trainSet = pickle.load(open(filePath,'rb'))
+    else:     
+        trainSet = pd.read_csv('train_format1.csv')
+        trainSet.rename(columns={'merchant_id':'seller_id'},inplace=True)
+        
+        ##--------------------------------------------------
+        ##   此特征： 加入用户基本信息特征
+        userInfo = get_userInfo_feat()
+        trainSet = pd.merge(trainSet,userInfo,how='left',on=['user_id'])
+        del userInfo
+        
+        ##-------------------------------------------------- 
+        ##   此特征： 加入商户基本信息特征，体现商店自身的热度和热门度
+        sellerInfo = get_sellerInfo_feat()
+        trainSet = pd.merge(trainSet,sellerInfo,how='left',on=['seller_id'])
+        del sellerInfo
+        
+        ##--------------------------------------
+        ##   此特征： 加入用户 - 商户之间的信息特征
+        userSellers = get_userSellerActions_feat()
+        trainSet = pd.merge(trainSet,userSellers,how='left',on=['user_id','seller_id'])
+        del userSellers
+
+        pickle.dump(trainSet,open(filePath,'wb'))
+    return trainSet
+
+trainSet = pickle.load(open('trainSetWithFeatures.pkl','rb'))
+X_train = trainSet.drop(['label'],axis = 1)
+y_train = trainSet['label']
+</code></pre>
+<p>模型评估</p>
+<pre><code>#引进工具库
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from numpy import mean, std
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from xgboost import XGBClassifier
+
+#定义模型
+def get_models():
+models = dict()
+models['LR'] = LogisticRegression()
+models['SVC'] = LinearSVC()
+models['DTC'] = DecisionTreeClassifier()
+models['forest'] = RandomForestClassifier()
+models['ABC'] = AdaBoostClassifier()
+return models
+
+models = get_models()
+
+#定义评分函数
+def evaluate_model(model):
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=42)
+    scores = cross_val_score(model,X_train,y_train,
+            scoring='roc_auc',cv=cv,n_jobs=-1)
+
+    return scores
+
+results, names = list(), list()
+for name, model in models.items():
+    scores = evaluate_model(model)
+    results.append(scores)
+
+    names.append(name)
+
+    print('&gt;%s %.3f'%(name,mean(scores)))  
+
+&gt;LR 0.508
+&gt;SVC 0.522
+&gt;DTC 0.520
+&gt;forest 0.639
+&gt;ABC 0.654
+</code></pre>
 
                 </div>
             </article>
