@@ -1,0 +1,485 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>利用python、tableau分析亚马逊洁面产品 | Dasein</title>
+
+<link rel="shortcut icon" href="https://stdasein.life/favicon.ico?v=1602550458303">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://stdasein.life/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Dasein
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1602550458303" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    利用python、tableau分析亚马逊洁面产品
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-10-13 ·
+                    </time>
+                    
+                        <a href="https://stdasein.life/tag/BBzBX4QU-/" class="post-tags">
+                            # About
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="一-项目背景">一、项目背景</h1>
+<p><strong>项目介绍</strong></p>
+<p>最近要换洗面奶，所以试着用python和tableau对热门洗面奶进行数据分析以指导购买行为。</p>
+<p><strong>数据来源</strong></p>
+<p>使用后羿采集器爬取<a href="https://www.amazon.cn/gp/bestsellers/beauty/747913051/ref=zg_bs_pg_1?ie=UTF8&amp;pg=1">amazon.cn</a>洁面销售排行榜前50商品的相关数据</p>
+<p><strong>数据概况</strong><br>
+爬取的数据可划分为两类<br>
+1.商品维度：<br>
+包括爬取的每种洗面奶的销售排名、评分、价格和评论等内容<br>
+<img src="https://stdasein.life/post-images/1602548996437.png" alt="" loading="lazy"><br>
+2.商家维度：<br>
+包括洗面奶商家的其他产品信息<br>
+<img src="https://stdasein.life/post-images/1602549063645.png" alt="" loading="lazy"></p>
+<h1 id="二-业务分析">二、业务分析</h1>
+<p><strong>数据分析的思路</strong></p>
+<p>数据分析一般有两种思路：</p>
+<p>1.有明确的目标和业务流程</p>
+<p>这种情况下的数据分析就是根据目标和业务流程确立关键指标、定位问题和分析问题。</p>
+<p>2.没有明确的目标，不知道数据应该怎么用</p>
+<p>我们属于这种情况，这时候需要进行业务分析去理解手上数据的价值所在。</p>
+<p><strong>建立电商数据指标体系</strong></p>
+<p>数据指标体系对关键指标和业务需求进行了整合，可以帮助我们加深对数据的理解。</p>
+<p>人货场分析框架</p>
+<figure data-type="image" tabindex="1"><img src="https://stdasein.life/post-images/1602549207256.png" alt="" width="500" height="400" loading="lazy"></figure>
+<p>AARRR模型</p>
+<figure data-type="image" tabindex="2"><img src="https://stdasein.life/post-images/1602549245905.png" alt="" width="500" height="400" loading="lazy"></figure>
+<p><strong>理解数据</strong></p>
+<p>以人货场分析框架的角度，大部分数据（评价数量、评价内容等）属于风险控制指标，因此，我们可以尝试以此为切入点进行分析，例如用户的评分能够揭示电商的运营风险，词频分析可以进行风险预警并提供改进的方向等；而商家维度的信息可以简单地用作市场竞争分析。</p>
+<p>以AARRR模型进行分析：</p>
+<p>价格：与转化相关，对销量与价格的衡量可以评价电商的收入水平</p>
+<p>评分：评分与AARRR中的活跃、留存、部分相联系，用户评分本身是用户活跃的体现，而评分高低又可以作为用户是否留存、复购的原因之一。</p>
+<p>评论数量：活跃、转化，根据经验，评论数量越大，销量越大</p>
+<h1 id="三-数据处理">三、数据处理</h1>
+<p><strong>环境设置</strong></p>
+<pre><code class="language-python">#引入基本工具库
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings(action='ignore')
+</code></pre>
+<pre><code class="language-python">#载入文件
+path = '亚马逊洗面奶.csv'
+data = pd.read_csv(path)
+</code></pre>
+<p><strong>评估数据质量</strong></p>
+<pre><code class="language-python">#查看前五条数据
+data.head()
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://stdasein.life/post-images/1602549450079.png" alt="" loading="lazy"></figure>
+<p><strong>行列名称不太规整</strong>，而且数据存在<strong>文本、数字和特殊字符混杂</strong>的情况，需要进行数据清理；</p>
+<pre><code class="language-python">#查看数据类型和缺失值分布
+data.info()
+</code></pre>
+<pre><code class="language-python">&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 9928 entries, 0 to 9927
+Data columns (total 15 columns):
+ #   Column         Non-Null Count  Dtype  
+---  ------         --------------  -----  
+ 0   标题             9928 non-null   object 
+ 1   zg-badge-text  9928 non-null   object 
+ 2   a-icon-alt     9928 non-null   object 
+ 3   价格             2241 non-null   object 
+ 4   评论数            9928 non-null   object 
+ 5   品牌所属地          9909 non-null   object 
+ 6   产地             9909 non-null   object 
+ 7   品牌功效           9902 non-null   object 
+ 8   上架时间           9909 non-null   object 
+ 9   美国评论数          8259 non-null   float64
+ 10  用户评分           9040 non-null   float64
+ 11  评论日期           9040 non-null   object 
+ 12  标签             9040 non-null   object 
+ 13  评论内容1          9040 non-null   object 
+ 14  赞同数            1065 non-null   float64
+dtypes: float64(3), object(12)
+memory usage: 1.1+ MB
+</code></pre>
+<p>不同特征都或多或少却在缺失值，其中<strong>价格和赞同数</strong>缺失情况比较严重；</p>
+<p>价格、评论数等特征的数据类型应调整为<strong>数值型</strong>。</p>
+<pre><code class="language-python">data.describe(include='all')
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://stdasein.life/post-images/1602549493440.png" alt="" loading="lazy"></figure>
+<p>品牌所在地、产地和品牌功效等特征的数据质量比较低，可以删去。</p>
+<p><strong>数据清理</strong></p>
+<p>规范行列名称</p>
+<pre><code class="language-python">#调整行列名称
+data.rename(columns = {'标题':'产品名称','zg-badge-text':'销量排名',
+                       'a-icon-alt':'平均评分','评论内容1':'评论内容'},inplace = True)
+#提取产品名称
+data['产品名称'] = data['产品名称'].str.split(' ').str.get(0)
+data.set_index('产品名称',inplace = True)
+</code></pre>
+<p>处理字符串</p>
+<pre><code class="language-python">#去除特殊字符
+data['销量排名'] = data['销量排名'].str.replace('#','')
+data['价格'] = data['价格'].str.replace('￥','')
+
+#提取价格数值
+group = '([0-9][,.]*[0-9]*)'
+data['平均评分'] = data['平均评分'].str.extract(group)
+
+#规范日期格式
+data['评论日期'] = data['评论日期'].str.replace(r'(年|月)','-',regex = True)
+data['评论日期']= data['评论日期'].str.replace('日',' ')
+data['评论日期'] = pd.to_datetime(data['评论日期'])
+
+#转换数据类型
+data['价格'] = data['价格'].str.split('-').str.get(0)
+data['价格'] = data['价格'].astype('float64')
+data['评论数'] = data['评论数'].str.replace(',','')
+data['评论数'] = data['评论数'].astype('int')
+</code></pre>
+<p>删除低质量特征</p>
+<pre><code class="language-python">data.drop(['品牌所属地','产地','品牌功效','美国评论数','上架时间'],axis = 1 ,inplace = True)
+</code></pre>
+<p>填充缺失值</p>
+<pre><code class="language-python">#统计缺失值
+count = data.isnull().sum().sort_values(ascending = False)
+ratio = count/len(data)
+nulldata = pd.concat([count,ratio],axis = 1, keys = ['count','ratio'])
+nulldata[nulldata['ratio'] &gt; 0]
+</code></pre>
+<figure data-type="image" tabindex="5"><img src="https://stdasein.life/post-images/1602549579720.png" alt="" loading="lazy"></figure>
+<pre><code class="language-python">data.drop(['赞同数'],axis = 1 ,inplace = True)
+price_null = data[data['价格'].isnull()].reset_index()
+price_nulllist = list(price_null['产品名称'].unique())
+price_nulllist
+</code></pre>
+<pre><code class="language-python">['freeplus芙丽芳丝净润洗面霜100g', '洗颜专科', 'Cetaphil']
+</code></pre>
+<pre><code class="language-python">#搜索商品价格并填充
+data.loc['freeplus芙丽芳丝净润洗面霜100g',['价格']] = 150
+data.loc['洗颜专科',['价格']]  = 34
+data.loc['Cetaphil',['价格']] = 58
+</code></pre>
+<p>评论内容、标签等特征的缺失属于正常情况，不予处理。</p>
+<p><strong>特征衍生</strong></p>
+<pre><code class="language-python">#为了更好地利用时间信息，创建时间间隔特征
+data['Now'] = pd.Timestamp(2020,9,30)
+data['评论时间间隔'] = data['Now'] - data['评论日期']
+data.drop(['Now','评论日期'],axis=1,inplace=True)
+data.head()
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://stdasein.life/post-images/1602549607195.png" alt="" loading="lazy"></figure>
+<h1 id="四-数据分析">四、数据分析</h1>
+<p><strong>评分分析</strong></p>
+<figure data-type="image" tabindex="7"><img src="https://stdasein.life/post-images/1602549629893.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>分析发现：</p>
+<p>各商品的评分均值为4.37；</p>
+<p>狮王、estee、Elizabeth、Elemis、Dove和BABOR的评分都达到了最高的5分；</p>
+<p>OLAY的评分最低，仅有1分。</p>
+<p>提出问题：</p>
+<p>评分的质量可靠吗？</p>
+<p>评分与销售的关系如何？</p>
+<p>作出假设：</p>
+<p>评分数量对评分均值产生了影响。</p>
+<p>评分与销售成正比。</p>
+<p>检验假设：</p>
+<p>1）评分数量对评分均值产生了影响</p>
+<p>利用颜色作为衡量评价数量的维度进行分析：</p>
+<figure data-type="image" tabindex="8"><img src="https://stdasein.life/post-images/1602549645462.png" alt="" width="500" height="500" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://stdasein.life/post-images/1602549721887.png" alt="" width="200" height="100" loading="lazy"></figure>
+<p>假设成立，一些商品的评价数量太少（仅有1-10条），导致评分均值不具代表性地偏高或偏低，例如狮王和OLAY的评价数量分别只有2条和1条。</p>
+<p>2）评分与销售成正比</p>
+<p>以评分和销售排名为变量画散点图：</p>
+<figure data-type="image" tabindex="10"><img src="https://stdasein.life/post-images/1602549741164.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>假设不成立，评分与销售没有显著关联，这违背了我们的一般经验，一个可能的原因是评分质量不佳（假设1），除此之外，我们还可以进一步分析销售情况。</p>
+<p><strong>评价数量分析</strong></p>
+<figure data-type="image" tabindex="11"><img src="https://stdasein.life/post-images/1602549756374.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>​</p>
+<p>分析发现：</p>
+<p>总的来说，各商品的评价数量相较于国内头部电商平台要少得多；</p>
+<p>评价数量最多的是洗颜专科，其次是freeplus和Cetaphil；</p>
+<p>余下商品评价数量都在200以下。</p>
+<p>提出问题：</p>
+<p>评价数量与销售有关系吗？</p>
+<p>作出假设：</p>
+<p>评价数量与销售成正比</p>
+<p>检验假设：</p>
+<figure data-type="image" tabindex="12"><img src="https://stdasein.life/post-images/1602549777406.png" alt="" width="500" height="400" loading="lazy"></figure>
+<p>假设不成立，销售第一的SANA的评论数量只有37条，而评论较多的商品中，只有freeplus位于销售前十，洗颜专科仅位于中部。可见，不能简单地依据评论数量判断商品的销售情况。</p>
+<p>那么，是否是时间因素的影响？（有的商品上架时间久远，累积的评论自然更多）</p>
+<figure data-type="image" tabindex="13"><img src="https://stdasein.life/post-images/1602549791505.png" alt="" loading="lazy"></figure>
+<p>显然，洗颜专科、freeplus和Cetaphil的评论历史更久远，而销量第一的SANA在两年前才开始有评论，我们可以据此合理假设SANA是近年来新出的产品。</p>
+<p><strong>评论日期分析</strong></p>
+<figure data-type="image" tabindex="14"><img src="https://stdasein.life/post-images/1602549804505.png" alt="" loading="lazy"></figure>
+<p>分析发现：</p>
+<p>在2012年2月之前，平台的评论数量呈现上升趋势，但在这之后却不断下降，近年来每月的新增评论都少于50条</p>
+<p>提出问题：</p>
+<p>2012年前后评论数量变化的原因是什么？</p>
+<p>作出假设：</p>
+<p>可能是平台间的竞争，例如以往只能在亚马逊买的商品（特别是海购商品）现在也在淘宝等平台上架了。</p>
+<p><strong>价格分析</strong></p>
+<p>1.价格与销售</p>
+<figure data-type="image" tabindex="15"><img src="https://stdasein.life/post-images/1602549827821.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>分析发现：</p>
+<p>总的来说，在一定区间内，价格对销售的影响并不大；</p>
+<p>绝大多数商品的价格在60-200元之间；</p>
+<p>销售前25的商品价格分布比较均匀，不同价位的商品数量差别不大，但销售排行靠后的商品价格都低于平均水平</p>
+<p>2.价格与评分</p>
+<figure data-type="image" tabindex="16"><img src="https://stdasein.life/post-images/1602549845567.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>分析发现：</p>
+<p>大部分评分4-5的洗面奶都在50-120的价格区间内；</p>
+<p>绝大部分评分低于4的商品价格都高于平均水平，可能是高价格使顾客对商品有了更高的预期。</p>
+<p>3.商家价格区间分析</p>
+<p>我们可以对商家所有商品的价格区间进行分析，以确定其自我定位。</p>
+<figure data-type="image" tabindex="17"><img src="https://stdasein.life/post-images/1602549883516.png" alt="" loading="lazy"></figure>
+<p>分析发现：</p>
+<p>娇兰、希思黎和艾莉美等品牌的注意力集中在高端市场，定价更高，商品均价在450元左右，而最高价达到800-900元；</p>
+<p>SANA和曼秀雷敦锁定的是低端市场，商品均价约为100元。</p>
+<p>娇兰商品图片</p>
+<figure data-type="image" tabindex="18"><img src="https://stdasein.life/post-images/1602549901251.png" alt="" loading="lazy"></figure>
+<p>SANA商品图片</p>
+<figure data-type="image" tabindex="19"><img src="https://stdasein.life/post-images/1602549915791.png" alt="" loading="lazy"></figure>
+<p>定位的不同很明显地体现在商品的包装上。</p>
+<p><strong>多维综合分析</strong></p>
+<p>综合价格、销售、评分和评论数量进行多维分析</p>
+<p>（圆圈的大小表示评论数的多少，颜色表示销售排名：黄色的排名比绿色高）</p>
+<figure data-type="image" tabindex="20"><img src="https://stdasein.life/post-images/1602549931472.png" alt="" width="500" height="500" loading="lazy"></figure>
+<p>利用价格均值和评分均值，将图切分为四个象限：<br>
+左上象限：又好又便宜<br>
+右上象限：贵但质量好<br>
+右下象限：贵且差评<br>
+左下象限：便宜没好货<br>
+我们可以借助这张图来进行决策：</p>
+<p>首先，我们过滤掉圆圈较小的商品，因为评论太少可能意味着商品没得到充分检验，在剩下的商品中</p>
+<p>追求性价比：可选择洗颜专科，评论最多也最便宜，而且评分不赖<br>
+追求高端：可选择freeplus，它贵有它的道理，一分钱一分货</p>
+<p><strong>词频分析</strong></p>
+<p>对评论和标签进行词频分析有助于商家理解用户的需求，从而改善自己的运营或产品。</p>
+<p>标签：</p>
+<p>使用jieba中文分词库进行词频分析</p>
+<pre><code class="language-python">import jieba
+txt = open(&quot;标签.txt&quot;, encoding=&quot;utf-8&quot;).read()  
+#加载停用词表  
+stopwords = [line.strip() for line in open(&quot;cn_stopwords.txt&quot;,encoding=&quot;utf-8&quot;).readlines()]  
+words  = jieba.lcut(txt)  
+counts = {}  
+for word in words:  
+    #不在停用词表中  
+    if word not in stopwords:  
+        #不统计字数为一的词  
+        if len(word) == 1:  
+            continue  
+        else:  
+            counts[word] = counts.get(word,0) + 1  
+            
+#按出现频率排序            
+items = list(counts.items())  
+items.sort(key=lambda x:x[1], reverse=True)  
+
+words_cnt = open(&quot;word_cnt.txt&quot;,'w')
+
+#打印前30项
+for i in range(30):  
+    word, count = items[i]  
+    words_cnt.write(word+' '+str(count)+'\n')
+    print (&quot;{:&lt;10}{:&gt;7}&quot;.format(word, count))
+</code></pre>
+<pre><code class="language-python">不错           1207
+泡沫            536
+好用            484
+洗面奶           416
+正品            413
+喜欢            364
+干净            315
+温和            312
+感觉            228
+洁面乳           209
+非常            198
+细腻            190
+丰富            177
+没有            171
+一直            152
+包装            146
+效果            139
+东西            132
+清洁            123
+便宜            116
+资生堂           115
+舒服            110
+洗颜            108
+产品            106
+专科            106
+适合            105
+刺激            105
+满意            104
+性价比            99
+有点             98
+</code></pre>
+<figure data-type="image" tabindex="21"><img src="https://stdasein.life/post-images/1602549952296.png" alt="" loading="lazy"></figure>
+<p>分析标签的词频，可以将顾客对洗面奶的关注点归纳为以下几方面：</p>
+<p>清洁能力：泡沫（536）、干净（315）、清洁（123）</p>
+<p>是否对皮肤有刺激性：温和（312）、细腻（190）、舒服（110）、刺激（105）</p>
+<p>价格：便宜（116）、性价比（99）</p>
+<p>质量：正品（413）、包装（146）</p>
+<p>评论内容：</p>
+<p>评论内容的分析结果与标签基本一致，体现了买洗面奶的用户更关心清洁能力、价格和质量等方面。</p>
+<figure data-type="image" tabindex="22"><img src="https://stdasein.life/post-images/1602549974267.png" alt="" loading="lazy"></figure>
+<h1 id="五-总结">五、总结</h1>
+<p><strong>1、竞品</strong><br>
+洗颜专科、freeplus在口碑、定价方面各有优势，需要重点关注。</p>
+<p><strong>2、口碑</strong><br>
+评论和评分是影响口碑的重要因素；平均评分达4.37分，高于平均分的商家超过一半，但评分可靠性受到评分数量影响；平均评论数为282条，但高于平均线的商家仅3家，评论在产品间的分布悬殊。</p>
+<p><strong>3、定价策略</strong><br>
+主流市场竞争激烈，价格多集中在50-120元间；高端市场竞争较少，但由于洗面奶同质化严重，要想在高端市场打开局面就得找准对应的群体并进行精细化运营。</p>
+<p><strong>4、产品策略</strong><br>
+应结合目标市场、定价和用户需求，在清洁能力、价格和质量等方面多下功夫，特别要注意对敏感肌的呵护，避免使用有刺激性的成分。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+            <script src='https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js'></script>
+
+<style>
+	div#vcomments{
+		width:60%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="vcomments"></div>
+
+<script>
+	new Valine({
+		el: '#vcomments',
+		appId: 'suhtzqRXVOn82V3a1GwIBG57-gzGzoHsz',
+		appKey: '1WhE54RtvjL0wzsFGqJ101o6',
+		avatar: 'monsterid',
+		pageSize: 5,
+		recordIp: false,
+		placeholder: 'Just Go Go',
+		visitor: false,
+	});
+</script>
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">Freiheit als Autonomie</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://stdasein.life/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
